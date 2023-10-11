@@ -27,6 +27,8 @@ describe("TestEquityDividendDistribution", function () {
 
     const Equity = await ethers.getContractFactory("EquityDividendDistribution");
     const equity = await Equity.deploy(struct.target);
+    await equity.registerSid(0, test_c.address);
+
     return { equity, struct, owner, test_a, test_b, test_c };
   }
 
@@ -38,14 +40,14 @@ describe("TestEquityDividendDistribution", function () {
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
 
       // Check total shares.
-      expect(await equity.totalShares()).to.equal(5);
+      expect(await equity.totalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await equity.totalDividend()).to.equal(0);
+      expect(await equity.totalDividend(0)).to.equal(0);
       // Check current shares version .
-      expect(await equity.lastSharesVersion()).to.equal(1);
+      expect(await equity.lastSharesVersion(0)).to.equal(1);
 
       // Get all shareholder addresses from contract.
-      const shareholder_addresses = await equity.getAllShareholders();
+      const shareholder_addresses = await equity.getAllShareholders(0);
       expect(shareholder_addresses.length).to.equal(2);
       expect(shareholder_addresses[0]).to.equal(test_a.address);
       expect(shareholder_addresses[1]).to.equal(test_b.address);
@@ -72,13 +74,13 @@ describe("TestEquityDividendDistribution", function () {
       expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount);
 
       // Check shareholder balance.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 40n, 0n, true]);
 
-      shareholder_b = await equity.shareholders(test_b.address);
+      shareholder_b = await equity.shareholdersList(0, test_b.address);
       expect(shareholder_b).to.deep.equal([3n, 60n, 0n, true]);
 
-      shareholder_c = await equity.shareholders(test_c.address);
+      shareholder_c = await equity.shareholdersList(0, test_c.address);
       expect(shareholder_c).to.deep.equal([0n, 0n, 0n, false]);
 
     });
@@ -119,29 +121,29 @@ describe("TestEquityDividendDistribution", function () {
         value: pay_amount_3 
       });
       // Check total shares.
-      expect(await equity.totalShares()).to.equal(5);
+      expect(await equity.totalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await equity.totalDividend()).to.equal(300);
+      expect(await equity.totalDividend(0)).to.equal(300);
       // Check current shares version .
-      expect(await equity.lastSharesVersion()).to.equal(2);
+      expect(await equity.lastSharesVersion(0)).to.equal(2);
 
       // Check contract balance.
       expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount + pay_amount_2 + pay_amount_3);
 
       // Check shareholder balance.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       // console.log(shareholder_a);
       expect(shareholder_a).to.deep.equal([2n, 120n, 0n, true]);
 
-      shareholder_b = await equity.shareholders(test_b.address);
+      shareholder_b = await equity.shareholdersList(0, test_b.address);
       // console.log(shareholder_b);
       expect(shareholder_b).to.deep.equal([1n, 140n, 0n, true]);
 
-      shareholder_c = await equity.shareholders(test_c.address);
+      shareholder_c = await equity.shareholdersList(0, test_c.address);
       // console.log(shareholder_c);
       expect(shareholder_c).to.deep.equal([2n, 40n, 0n, true]);
 
-      expect(await equity.totalWithdrawnFunds()).to.equal(0);
+      expect(await equity.totalWithdrawnFunds(0)).to.equal(0);
 
     });
 
@@ -155,27 +157,27 @@ describe("TestEquityDividendDistribution", function () {
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
 
-      expect(await equity.totalDividend()).to.equal(100);
-      expect(await equity.totalWithdrawnFunds()).to.equal(0);
+      expect(await equity.totalDividend(0)).to.equal(100);
+      expect(await equity.totalWithdrawnFunds(0)).to.equal(0);
 
       
       // Check state before withdraw.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 40n, 0n, true]);
       // Check test_a balance 
       expect(await ethers.provider.getBalance(test_a.address)).to.equal(10000000000000000000000n);
       // Withdraw dividend for test_a.
-      await equity.withdrawDividends(test_a.address);
+      await equity.withdrawDividends(0, test_a.address);
       
       // Check state after withdraw.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 0n, 40n, true]);
       // Check test_a balance 
       expect(await ethers.provider.getBalance(test_a.address)).to.equal(10000000000000000000040n);
       // Check total dividend amount.
-      expect(await equity.totalDividend()).to.equal(100);
+      expect(await equity.totalDividend(0)).to.equal(100);
       // Check total withdrawn funds.
-      expect(await equity.totalWithdrawnFunds()).to.equal(40);
+      expect(await equity.totalWithdrawnFunds(0)).to.equal(40);
 
       // Continue with a transfer of 100
       await owner.sendTransaction({
@@ -184,24 +186,24 @@ describe("TestEquityDividendDistribution", function () {
       });
 
       // Check state before withdraw.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 40n, 40n, true]);
-      shareholder_b = await equity.shareholders(test_b.address);
+      shareholder_b = await equity.shareholdersList(0, test_b.address);
       expect(shareholder_b).to.deep.equal([3n, 120n, 0n, true]);
 
       
       // Check test_a balance
-      await equity.withdrawDividends(test_a.address);
+      await equity.withdrawDividends(0, test_a.address);
       // Check state after withdraw.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 0n, 80n, true]);
       expect(await ethers.provider.getBalance(test_a.address)).to.equal(10000000000000000000080n);
       // Check test_b balance
       expect(await ethers.provider.getBalance(test_b.address)).to.equal(10000000000000000000000n);
       // Check total dividend amount.
-      expect(await equity.totalDividend()).to.equal(200);
+      expect(await equity.totalDividend(0)).to.equal(200);
       // Check total withdrawn funds.
-      expect(await equity.totalWithdrawnFunds()).to.equal(80);
+      expect(await equity.totalWithdrawnFunds(0)).to.equal(80);
 
 
       // Change shareholder information.
@@ -212,17 +214,17 @@ describe("TestEquityDividendDistribution", function () {
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
       // Check state before withdraw.
-      shareholder_a = await equity.shareholders(test_a.address);
+      shareholder_a = await equity.shareholdersList(0, test_a.address);
       expect(shareholder_a).to.deep.equal([2n, 50n, 80n, true]);
-      shareholder_b = await equity.shareholders(test_b.address);
+      shareholder_b = await equity.shareholdersList(0, test_b.address);
       expect(shareholder_b).to.deep.equal([0n, 120n, 0n, true]);
-      shareholder_c = await equity.shareholders(test_c.address);
+      shareholder_c = await equity.shareholdersList(0, test_c.address);
       expect(shareholder_c).to.deep.equal([2n, 50n, 0n, true]);
 
       // Test_b withdraw his dividend.
-      await equity.withdrawDividends(test_b.address);
+      await equity.withdrawDividends(0, test_b.address);
       // Check state after withdraw.
-      shareholder_b = await equity.shareholders(test_b.address);
+      shareholder_b = await equity.shareholdersList(0, test_b.address);
       expect(shareholder_b).to.deep.equal([0n, 0n, 120n, true]);
       expect(await ethers.provider.getBalance(test_b.address)).to.equal(10000000000000000000120n);
 
@@ -235,7 +237,7 @@ describe("TestEquityDividendDistribution", function () {
       
       // If shareholder has no funds available, he can't withdraw.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
-      await expect(equity.withdrawDividends(owner.address)).to.be.revertedWith("Shareholder does not exist");
+      await expect(equity.withdrawDividends(0, owner.address)).to.be.revertedWith("Shareholder does not exist");
 
     });
 
@@ -245,7 +247,7 @@ describe("TestEquityDividendDistribution", function () {
       
       // If shareholder has no funds available, he can't withdraw.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
-      await expect(equity.withdrawDividends(test_a.address)).to.be.revertedWith("No dividends to withdraw");
+      await expect(equity.withdrawDividends(0, test_a.address)).to.be.revertedWith("No dividends to withdraw");
 
     });
 
