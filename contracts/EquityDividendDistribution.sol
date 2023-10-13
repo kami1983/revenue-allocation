@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Proprietary
 pragma solidity ^0.8.9;
 
+// token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./InterfaceEquityStructure.sol";
 
 // import "hardhat/console.sol";
@@ -10,27 +12,31 @@ contract EquityDividendDistribution {
     address public owner; // Contract owner
     address public register; // 
 
-    uint256[] public totalShares; // Total number of shares
-    uint256[] public totalDividend; // Total dividend amount
-    uint256[] public lastSharesVersion; // The last updated equity version
+    uint256[] private totalShares; // Total number of shares
+    uint256[] private totalDividend; // Total dividend amount
+    uint256[] private lastSharesVersion; // The last updated equity version
 
     InterfaceEquityStructure public equityStructure;
 
     struct Shareholder {
         uint256 shares; // Number of shares
-        uint256 dividendBalance; // Dividend balance
-        uint256 totalWithdrawn; // Total withdrawal amount
         bool exists; // Whether the shareholder exists
+        mapping(address => uint256) dividendBalanceList; // Dividend balance
+        mapping(address => uint256) totalWithdrawnList; // Total withdrawal amount
     }
 
     // Array index is the sid value.
-    mapping(address => Shareholder)[] public shareholdersList; // Mapping of shareholder addresses
+    mapping(address => Shareholder)[] private shareholdersList; // Mapping of shareholder addresses
     mapping(uint256 => address[]) public shareholderAddressesList;
 
     // A mapping of S-NFT id to local shareholder id
-    // uint256 mapNextId = 0;
+    // sid to mid
     mapping(uint256 => uint256) public sidMap;
+    // mid to sid
+    mapping(uint256 => uint256) public midMap;
+    // sid to balanceOf address
     mapping(uint256 => address) public balanceAddressList;
+    mapping(address => uint256) public balanceSidList;
     
     // address[] public shareholderAddresses;
 
@@ -47,7 +53,7 @@ contract EquityDividendDistribution {
     constructor(address _equityStructure) {
         owner = msg.sender;
         register = msg.sender;
-        updateEquityStructure(_equityStructure);
+        updateEquityStructureInterface(_equityStructure);
     }
 
     // update register
@@ -71,14 +77,26 @@ contract EquityDividendDistribution {
 
         if (condition) {
             // Check equity structure version
-            uint256 _version = equityStructure.getEquityVersion();
+            uint256 _version = equityStructure.getEquityVersion(midMap[_sMapKey]);
             if (_version > lastSharesVersion[0]) {
                 // Update equity structure
                 _refreshEquityStructure(_sMapKey);
             }
 
-            _distributeDividend(_sMapKey);
+            _distributeDividend(_sMapKey, address(0));
         }
+    }
+
+    function receiveDeposit(IERC20 _token, uint256 _value) external {
+        // Get caller address
+        address _user = msg.sender;
+        // Get sid
+        uint256 _sid = balanceSidList[_user];
+
+        // TODO: 需要将对应的资金加入到对应的数组中
+
+        // bool condition = msg.value > totalShares[0];
+
     }
 
     // Register a Shares, will set the sid and sidExists
@@ -87,6 +105,7 @@ contract EquityDividendDistribution {
         // sid already registered
         require(balanceAddressList[_sid] == address(0), "sid already registered");
         balanceAddressList[_sid] = _balanceOfAddress;
+        balanceSidList[_balanceOfAddress] = _sid;
         // init data lists
         shareholdersList.push();
         totalShares.push(0);
@@ -97,6 +116,7 @@ contract EquityDividendDistribution {
 
         // Get sidMap length 
         sidMap[_sid] = mapNextId;
+        midMap[mapNextId] = _sid;
         // shareholdersList[mapNextId];
         _refreshEquityStructure(mapNextId);
         mapNextId++;
@@ -108,22 +128,20 @@ contract EquityDividendDistribution {
     }
 
     // Update the address of the equity structure contract, can only be called by the contract owner
-    function updateEquityStructure(address _equityStructure) public onlyOwner {
+    function updateEquityStructureInterface(address _equityStructure) public onlyOwner {
         equityStructure = InterfaceEquityStructure(_equityStructure);
         // _refreshEquityStructure();
     }
 
     // Refresh the equity structure
     function _refreshEquityStructure(uint256 _mid) private {
-        (address[] memory _newShareholders, uint256[] memory _newShares) = equityStructure.getEquityStructure();
-        uint256 _version = equityStructure.getEquityVersion();
+        (address[] memory _newShareholders, uint256[] memory _newShares) = equityStructure.getEquityStructure(midMap[_mid]);
+        uint256 _version = equityStructure.getEquityVersion(midMap[_mid]);
         _updateShareholders(_mid, _newShareholders, _newShares, _version);
     }
 
     // Private method to add a shareholder to the shareholderAddresses array
     function _addShareholderToList(uint256 _mid, address _shareholder) private {
-
-        
         // Check if _shareholder exists in shareholderAddresses and add if not
         bool found = false;
         for (uint256 i = 0; i < shareholderAddressesList[_mid].length; i++) {
@@ -191,7 +209,11 @@ contract EquityDividendDistribution {
             // Why shareholdersList.length > _mid ? because shareholdersList[_mid] is a mapping, 
             // it will be created when the first shareholder is added.
             if (!shareholdersList[_mid][newShareholder].exists) {
-                shareholdersList[_mid][newShareholder] = Shareholder(newShares, 0, 0, true);
+
+                Shareholder storage newElement = shareholdersList[_mid][newShareholder];
+                newElement.exists = true;
+                newElement.shares = newShares;
+
                 // Accumulate totalShares
                 totalShares[_mid] += newShares;
                 _addShareholderToList(_mid, newShareholder);
@@ -203,14 +225,14 @@ contract EquityDividendDistribution {
     }
 
     // Distribute dividends
-    function _distributeDividend(uint256 _mid) internal {
+    function _distributeDividend(uint256 _mid, address _token) internal {
 
         // Check the current balance of this contract
         uint256 contractBalance = address(this).balance;
         require(contractBalance > 0, "No funds available to distribute");
 
         // Get the total amount to distribute for the current equity
-        uint256 _dividendAmount = contractBalance - (totalDividend[_mid] - _totalWithdrawnFunds(_mid));
+        uint256 _dividendAmount = contractBalance - (totalDividend[_mid] - _totalWithdrawnFunds(_mid, _token));
 
         require(_dividendAmount > 0, "Dividend amount must be greater than 0");
 
@@ -224,37 +246,72 @@ contract EquityDividendDistribution {
             address shareholderAddr = shareholderAddressesList[_mid][i];
             Shareholder storage shareholder = shareholdersList[_mid][shareholderAddr];
             uint256 dividendPayment = shareholder.shares * dividendPaymentEachShare;
-            shareholder.dividendBalance += dividendPayment;
+            shareholder.dividendBalanceList[_token] += dividendPayment;
         }
     }
 
     // Withdraw dividends
-    function withdrawDividends(uint256 _sid, address holder) external {
+    function withdrawDividends(uint256 _sid,  address _token, address holder) external {
 
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
 
         Shareholder storage shareholder = shareholdersList[_sMapKey][holder];
         require(shareholder.exists, "Shareholder does not exist");
-        require(shareholder.dividendBalance > 0, "No dividends to withdraw");
+        require(shareholder.dividendBalanceList[_token] > 0, "No dividends to withdraw");
 
-        uint256 amountToWithdraw = shareholder.dividendBalance;
-        shareholder.dividendBalance = 0;
-        shareholder.totalWithdrawn += amountToWithdraw;
+        uint256 amountToWithdraw = shareholder.dividendBalanceList[_token];
+        shareholder.dividendBalanceList[_token] = 0;
+        shareholder.totalWithdrawnList[_token] += amountToWithdraw;
         payable(holder).transfer(amountToWithdraw);
     }
 
     // Get a list of all shareholders' addresses
     function getAllShareholders(uint256 _sid) public view returns (address[] memory) {
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
-
         return shareholderAddressesList[_sMapKey];
     }
 
+    // Get total shares by sid
+    function getTotalShares(uint256 _sid) external view returns (uint256) {
+        return totalShares[sidMap[_sid]];
+    }
+
+    function getTotalDividend(uint256 _sid) external view returns (uint256) {
+        return totalDividend[sidMap[_sid]];
+    }
+
+    /**
+     * @dev Get the last updated equity version
+     * @param _sid The sid of the shareholder
+     * @return The last updated equity version
+     */
+    function getLastSharesVersion(uint256 _sid) external view returns (uint256) {
+        return lastSharesVersion[sidMap[_sid]];
+    }
+
+    /**
+     * @dev Get shareholder information
+     * @param _sid The sid of the shareholder
+     * @param _token The token address, if native token, use address(0)
+     * @param _who The shareholder address
+     * @return shares The number of shares, exists Whether the shareholder exists, totalWithdrawn Total withdrawal amount, dividendBalance Dividend balance
+    */
+    function getShareholdersList(uint256 _sid, address _token, address _who) external view returns (uint256, bool, uint256, uint256){
+        Shareholder storage shareholder = shareholdersList[sidMap[_sid]][_who];
+        return (
+            shareholder.shares, 
+            shareholder.exists, 
+            shareholder.totalWithdrawnList[_token],
+            shareholder.dividendBalanceList[_token]
+         );
+    }
+
+
     // Get the total withdrawn funds
-    function totalWithdrawnFunds(uint256 _sid) public view returns (uint256) {
+    function totalWithdrawnFunds(uint256 _sid, address _token) public view returns (uint256) {
 
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
-        return _totalWithdrawnFunds(_sMapKey);
+        return _totalWithdrawnFunds(_sMapKey, _token);
 
         // uint256 totalWithdrawn = 0;
         // for (uint256 i = 0; i < shareholderAddressesList[_sMapKey].length; i++) {
@@ -264,11 +321,11 @@ contract EquityDividendDistribution {
         // return totalWithdrawn;
     }
 
-    function _totalWithdrawnFunds(uint256 _mid) internal view returns (uint256) {
+    function _totalWithdrawnFunds(uint256 _mid, address _token) internal view returns (uint256) {
         uint256 totalWithdrawn = 0;
         for (uint256 i = 0; i < shareholderAddressesList[_mid].length; i++) {
             address shareholderAddr = shareholderAddressesList[_mid][i];
-            totalWithdrawn += shareholdersList[_mid][shareholderAddr].totalWithdrawn;
+            totalWithdrawn += shareholdersList[_mid][shareholderAddr].totalWithdrawnList[_token];
         }
         return totalWithdrawn;
     }

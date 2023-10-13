@@ -11,28 +11,22 @@ describe("TestEquityStructure", function () {
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
   async function deployFixture() {
-    // const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    // const ONE_GWEI = 1_000_000_000;
-    // const ONE_ETH = 1_000_000_000_000_000_000n;
-
-    // const lockedAmount = ONE_GWEI;
-    // const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
-
     // Contracts are deployed using the first signer/account by default
     const [owner, test_a, test_b, test_c] = await ethers.getSigners();
 
     const EquityStructre = await ethers.getContractFactory("TestEquityStructure");
-    const equity = await EquityStructre.deploy([test_a.address, test_b.address], [2, 3]);
+    const equity = await EquityStructre.deploy(0, [test_a.address, test_b.address], [2, 3]);
 
     return { equity, owner, test_a, test_b, test_c };
   }
 
   describe("Test Datas", function () {
+    
     it("Test construct datas.", async function () {
       const { equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
 
-      expect(await equity.getEquityVersion()).to.equal(1);
-      const [payees, shares] = await equity.getEquityStructure()
+      expect(await equity.getEquityVersion(0)).to.equal(1);
+      const [payees, shares] = await equity.getEquityStructure(0)
 
       expect(payees.length).to.equal(2);
       expect(payees[0]).to.equal(test_a.address);
@@ -45,9 +39,9 @@ describe("TestEquityStructure", function () {
 
     it("Test update datas.", async function () {
       const { equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
-      await equity.updateEquityStructure([test_a.address, test_b.address, test_c.address], [1, 2, 3])
-      expect(await equity.getEquityVersion()).to.equal(2);
-      const [payees, shares] = await equity.getEquityStructure()
+      await equity.updateEquityStructure(0, [test_a.address, test_b.address, test_c.address], [1, 2, 3])
+      expect(await equity.getEquityVersion(0)).to.equal(2);
+      const [payees, shares] = await equity.getEquityStructure(0)
 
       expect(payees.length).to.equal(3);
       expect(payees[0]).to.equal(test_a.address);
@@ -57,7 +51,22 @@ describe("TestEquityStructure", function () {
       expect(shares[0]).to.equal(1);
       expect(shares[1]).to.equal(2);
       expect(shares[2]).to.equal(3);
+    });
 
+    it("Test add new datas.", async function () {
+      const { equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
+      await equity.updateEquityStructure(5, [test_a.address, test_b.address, test_c.address], [10, 20, 30])
+      expect(await equity.getEquityVersion(5)).to.equal(1);
+      const [payees, shares] = await equity.getEquityStructure(5)
+
+      expect(payees.length).to.equal(3);
+      expect(payees[0]).to.equal(test_a.address);
+      expect(payees[1]).to.equal(test_b.address);
+      expect(payees[2]).to.equal(test_c.address);
+      expect(shares.length).to.equal(3);
+      expect(shares[0]).to.equal(10);
+      expect(shares[1]).to.equal(20);
+      expect(shares[2]).to.equal(30);
     });
 
   });
