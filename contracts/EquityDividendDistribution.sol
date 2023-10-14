@@ -4,16 +4,18 @@ pragma solidity ^0.8.9;
 // token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./InterfaceEquityStructure.sol";
+import "./IEquityDividendDistribution.sol";
+import "./IEquityVault.sol";
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 
-contract EquityDividendDistribution {
+contract EquityDividendDistribution is IEquityDividendDistribution {
     address public owner; // Contract owner
     address public register; // 
 
     uint256[] private totalShares; // Total number of shares
-    uint256[] private totalDividend; // Total dividend amount
+    // uint256[] private totalDividend; // Total dividend amount
     uint256[] private lastSharesVersion; // The last updated equity version
 
     InterfaceEquityStructure public equityStructure;
@@ -37,6 +39,8 @@ contract EquityDividendDistribution {
     // sid to balanceOf address
     mapping(uint256 => address) public balanceAddressList;
     mapping(address => uint256) public balanceSidList;
+    
+    
     
     // address[] public shareholderAddresses;
 
@@ -67,49 +71,83 @@ contract EquityDividendDistribution {
     }
 
     // Receive Ether
-    receive() external payable {
+    // receive() external payable {
+    //     // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
+    //     bool condition = msg.value > totalShares[0];
+
+    //     // get msg user
+    //     // address _user = msg.sender;
+    //     (uint256 _sMapKey,) = getSidRelatedInfos(0);
+
+    //     if (condition) {
+    //         // Check equity structure version
+    //         uint256 _version = equityStructure.getEquityVersion(midMap[_sMapKey]);
+    //         if (_version > lastSharesVersion[0]) {
+    //             // Update equity structure
+    //             _refreshEquityStructure(_sMapKey);
+    //         }
+
+    //         _distributeDividend(_sMapKey, address(0));
+    //     }
+    // }
+
+    function receiveDeposit(address _token, uint256 _value) external{
+
+        // Singer
+        address _from = msg.sender;
+
+        // Get sid
+        uint256 _sid = balanceSidList[_from];
+
+        // Check sid exists
+        require(balanceAddressList[_sid] == _from, "sid not registered");
+
+        uint256 _total_shares = this.getTotalShares(_sid);
+
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
-        bool condition = msg.value > totalShares[0];
+        require(_value > _total_shares, "You need to send more balance");
 
         // get msg user
         // address _user = msg.sender;
-        (uint256 _sMapKey,) = getSidRelatedInfos(0);
+        // (uint256 _sMapKey,) = getSidRelatedInfos(0);
 
-        if (condition) {
-            // Check equity structure version
-            uint256 _version = equityStructure.getEquityVersion(midMap[_sMapKey]);
-            if (_version > lastSharesVersion[0]) {
+        uint256 _sMapKey = sidMap[_sid];
+        uint256 _version = equityStructure.getEquityVersion(_sid);
+        if (_version > lastSharesVersion[0]) {
                 // Update equity structure
-                _refreshEquityStructure(_sMapKey);
-            }
-
-            _distributeDividend(_sMapKey, address(0));
+            _refreshEquityStructure(_sMapKey);
         }
-    }
+        _distributeDividend(_sMapKey, _token, _value);
 
-    function receiveDeposit(IERC20 _token, uint256 _value) external {
-        // Get caller address
-        address _user = msg.sender;
-        // Get sid
-        uint256 _sid = balanceSidList[_user];
+        // if (condition) {
+        //     // Check equity structure version
+        //     uint256 _version = equityStructure.getEquityVersion(_sid);
+        //     if (_version > lastSharesVersion[0]) {
+        //         // Update equity structure
+        //         _refreshEquityStructure(_sMapKey);
+        //     }
 
-        // TODO: 需要将对应的资金加入到对应的数组中
-
-        // bool condition = msg.value > totalShares[0];
+        //     _distributeDividend(_sMapKey, address(0));
+        // }
 
     }
 
     // Register a Shares, will set the sid and sidExists
-    function registerSid(uint256 _sid, address _balanceOfAddress) public onlyRegister {
-        require(_balanceOfAddress != address(0), "balanceOfAddress is zero");
+    function registerSid(uint256 _sid, address _vault_address) public onlyRegister {
+
+        // console.log('registerSid', _sid, address(_vault), _vault.getDividendAddress());
+        require(_vault_address != address(0), "balanceOfAddress is zero");
+        IEquityVault _vault = IEquityVault(_vault_address);
+        require(_vault.getDividendAddress() == address(this), 'Vault address is not correct');
+
         // sid already registered
         require(balanceAddressList[_sid] == address(0), "sid already registered");
-        balanceAddressList[_sid] = _balanceOfAddress;
-        balanceSidList[_balanceOfAddress] = _sid;
+        balanceAddressList[_sid] = _vault_address;
+        balanceSidList[_vault_address] = _sid;
         // init data lists
         shareholdersList.push();
         totalShares.push(0);
-        totalDividend.push(0); 
+        // totalDividend.push(0); 
         lastSharesVersion.push(0); 
 
         uint256 mapNextId = shareholdersList.length - 1;
@@ -225,19 +263,21 @@ contract EquityDividendDistribution {
     }
 
     // Distribute dividends
-    function _distributeDividend(uint256 _mid, address _token) internal {
+    function _distributeDividend(uint256 _mid, address _token, uint256 _deposit_value) internal {
 
         // Check the current balance of this contract
-        uint256 contractBalance = address(this).balance;
-        require(contractBalance > 0, "No funds available to distribute");
+        // uint256 contractBalance = address(this).balance;
+        // require(contractBalance > 0, "No funds available to distribute");
 
         // Get the total amount to distribute for the current equity
-        uint256 _dividendAmount = contractBalance - (totalDividend[_mid] - _totalWithdrawnFunds(_mid, _token));
+        // uint256 _dividendAmount = contractBalance - (totalDividend[_mid] - _totalWithdrawnFunds(_mid, _token));
+
+        uint256 _dividendAmount = _deposit_value;
 
         require(_dividendAmount > 0, "Dividend amount must be greater than 0");
 
         // Accumulate to the total distribution amount
-        totalDividend[_mid] += _dividendAmount;
+        // totalDividend[_mid] += _dividendAmount;
 
         // Calculate the dividend payment for each share
         uint256 dividendPaymentEachShare = (_dividendAmount) / totalShares[_mid];
@@ -250,19 +290,32 @@ contract EquityDividendDistribution {
         }
     }
 
-    // Withdraw dividends
-    function withdrawDividends(uint256 _sid,  address _token, address holder) external {
+    /**
+     * @dev Withdraw dividends
+     * @param _sid The id of the equity structure
+     * @param _token The address of the token contract
+     * @param _holder The address of the holder
+     */
+    function withdrawDividends(uint256 _sid,  address _token, address _holder) external {
 
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
 
-        Shareholder storage shareholder = shareholdersList[_sMapKey][holder];
+        Shareholder storage shareholder = shareholdersList[_sMapKey][_holder];
         require(shareholder.exists, "Shareholder does not exist");
         require(shareholder.dividendBalanceList[_token] > 0, "No dividends to withdraw");
 
         uint256 amountToWithdraw = shareholder.dividendBalanceList[_token];
         shareholder.dividendBalanceList[_token] = 0;
         shareholder.totalWithdrawnList[_token] += amountToWithdraw;
-        payable(holder).transfer(amountToWithdraw);
+
+        address _vault_address = balanceAddressList[_sid];
+        IEquityVault vault = IEquityVault(_vault_address);
+        require(vault.getDividendAddress() == address(this), 'Vault address is not correct');
+
+        vault.withdraw(_token, _holder, amountToWithdraw);
+
+        // 
+        emit EventWithdrawDividends(_sid, _token, _holder, amountToWithdraw);
     }
 
     // Get a list of all shareholders' addresses
@@ -276,9 +329,9 @@ contract EquityDividendDistribution {
         return totalShares[sidMap[_sid]];
     }
 
-    function getTotalDividend(uint256 _sid) external view returns (uint256) {
-        return totalDividend[sidMap[_sid]];
-    }
+    // function getTotalDividend(uint256 _sid) external view returns (uint256) {
+    //     return totalDividend[sidMap[_sid]];
+    // }
 
     /**
      * @dev Get the last updated equity version

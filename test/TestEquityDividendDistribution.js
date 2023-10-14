@@ -18,21 +18,22 @@ describe("TestEquityDividendDistribution", function () {
     const equity = await Equity.deploy(struct.target);
 
     // TODO::Deploy a vault contract for sid = 0.
-    const vault0 = await ethers.getContractFactory("EquityVault");
+    const EquityVault = await ethers.getContractFactory("EquityVault");
+    const vault = await EquityVault.deploy(equity.target);
 
-    await equity.registerSid(0, test_c.address);
+    await equity.registerSid(0, vault.target);
 
-    return { equity, struct, owner, test_a, test_b, test_c };
+    return { vault, equity, struct, owner, test_a, test_b, test_c };
   }
 
   describe("Test Dividend Distribution", function () {
     it("Test construct datas.", async function () {
-      const { equity, test_a, test_b } = await loadFixture(deployFixture);
+      const { equity, vault, test_a, test_b } = await loadFixture(deployFixture);
 
       // Check total shares.
       expect(await equity.getTotalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await equity.getTotalDividend(0)).to.equal(0);
+      expect(await vault.inVaultBalanceList(ethers.ZeroAddress)).to.equal(0);
       // Check current shares version .
       expect(await equity.getLastSharesVersion(0)).to.equal(1);
 
@@ -45,7 +46,7 @@ describe("TestEquityDividendDistribution", function () {
     });
 
     it("Test equity dividend distribution functionality", async function () {
-      const { equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
+      const { vault, equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
 
       // Update shareholder information and set their equity distribution ratio.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
@@ -57,11 +58,11 @@ describe("TestEquityDividendDistribution", function () {
       // Pay some Ether to the contract.
       const pay_amount = 100;
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
       // Check contract balance.
-      expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount);
+      expect(await ethers.provider.getBalance(vault.target)).to.equal(pay_amount);
 
       // Check shareholder balance.
       shareholder_a = await equity.getShareholdersList(0, ethers.ZeroAddress, test_a.address);
@@ -77,7 +78,7 @@ describe("TestEquityDividendDistribution", function () {
     });
 
     it("Should distribute dividends multiple times", async function () {
-      const { equity, struct, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
+      const { vault, equity, struct, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
 
       // Update shareholder information and set their equity distribution ratio.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
@@ -87,20 +88,20 @@ describe("TestEquityDividendDistribution", function () {
       // Pay some Ether to the contract.
       const pay_amount = 100;
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
       // Check contract balance.
-      expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount);
+      expect(await ethers.provider.getBalance(vault.target)).to.equal(pay_amount);
 
       // Test second dividend distribution.
       const pay_amount_2 = 100;
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount_2 
       });
       // Check contract balance.
-      expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount + pay_amount_2);
+      expect(await ethers.provider.getBalance(vault.target)).to.equal(pay_amount + pay_amount_2);
 
       // Update shareholder information and set their equity distribution ratio.
       await struct.updateEquityStructure(0, [test_a.address, test_b.address, test_c.address], [2,1,2])
@@ -108,18 +109,18 @@ describe("TestEquityDividendDistribution", function () {
       // Test third dividend distribution.
       const pay_amount_3 = 100;
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount_3 
       });
       // Check total shares.
       expect(await equity.getTotalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await equity.getTotalDividend(0)).to.equal(300);
+      expect(await vault.inVaultBalanceList(ethers.ZeroAddress)).to.equal(300);
       // Check current shares version .
       expect(await equity.getLastSharesVersion(0)).to.equal(2);
 
       // Check contract balance.
-      expect(await ethers.provider.getBalance(equity.target)).to.equal(pay_amount + pay_amount_2 + pay_amount_3);
+      expect(await ethers.provider.getBalance(vault.target)).to.equal(pay_amount + pay_amount_2 + pay_amount_3);
 
       // Check shareholder balance.
       shareholder_a = await equity.getShareholdersList(0, ethers.ZeroAddress, test_a.address);
@@ -140,15 +141,15 @@ describe("TestEquityDividendDistribution", function () {
 
     it("Test withdraw dividends", async function () {
 
-      const { equity, struct, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
+      const { vault, equity, struct, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
       const pay_amount = 100;
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
 
-      expect(await equity.getTotalDividend(0)).to.equal(100);
+      expect(await vault.inVaultBalanceList(ethers.ZeroAddress)).to.equal(100);
       console.log(' ethers.ZeroAddress - ', ethers.ZeroAddress);
       expect(await equity.totalWithdrawnFunds(0, ethers.ZeroAddress)).to.equal(0);
 
@@ -168,13 +169,13 @@ describe("TestEquityDividendDistribution", function () {
       // Check test_a balance 
       expect(await ethers.provider.getBalance(test_a.address)).to.equal(10000000000000000000040n);
       // Check total dividend amount.
-      expect(await equity.getTotalDividend(0)).to.equal(100);
+      expect(await vault.inVaultBalanceList(ethers.ZeroAddress)).to.equal(100);
       // Check total withdrawn funds.
       expect(await equity.totalWithdrawnFunds(0, ethers.ZeroAddress)).to.equal(40);
 
       // Continue with a transfer of 100
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
 
@@ -194,7 +195,7 @@ describe("TestEquityDividendDistribution", function () {
       // Check test_b balance
       expect(await ethers.provider.getBalance(test_b.address)).to.equal(10000000000000000000000n);
       // Check total dividend amount.
-      expect(await equity.getTotalDividend(0)).to.equal(200);
+      expect(await vault.inVaultBalanceList(ethers.ZeroAddress)).to.equal(200);
       // Check total withdrawn funds.
       expect(await equity.totalWithdrawnFunds(0, ethers.ZeroAddress)).to.equal(80);
 
@@ -203,7 +204,7 @@ describe("TestEquityDividendDistribution", function () {
       await struct.updateEquityStructure(0, [test_a.address, test_b.address, test_c.address], [2,0,2])
       // Continue with a transfer of 100
       await owner.sendTransaction({
-        to: equity.target,
+        to: vault.target,
         value: pay_amount // ethers.parseEther("100.0"), // Sends exactly 1.0 ether
       });
       // Check state before withdraw.
@@ -226,7 +227,7 @@ describe("TestEquityDividendDistribution", function () {
     // Shareholder does not exist
     it("Exception testing, Shareholder does not exist", async function () {
 
-      const { equity, owner, test_a, test_b }  = await loadFixture(deployFixture);
+      const { equity, owner }  = await loadFixture(deployFixture);
       
       // If shareholder has no funds available, he can't withdraw.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
@@ -236,7 +237,7 @@ describe("TestEquityDividendDistribution", function () {
 
     it("Exception testing, No dividends to withdraw", async function () {
 
-      const { equity, test_a, test_b } = await loadFixture(deployFixture);
+      const { equity, test_a } = await loadFixture(deployFixture);
       
       // If shareholder has no funds available, he can't withdraw.
       // await equity.updateShareholders([test_a.address, test_b.address], [2,3], 1)
