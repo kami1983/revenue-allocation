@@ -17,8 +17,6 @@ describe("TestEcoDividendDistribution", function () {
     const struct = await Structre.deploy(0, [test_a.address, test_b.address], [2, 3]);
 
     const Equity = await ethers.getContractFactory("EcoDividendDistribution");
-    // const equity = await Equity.deploy(struct.address);
-
     const equity_proxy = await upgrades.deployProxy(Equity, [struct.address], { initializer: 'initialize' });
     await equity_proxy.deployed();
 

@@ -73,3 +73,20 @@ new_dividend_distribution -  1.0.1
 vault upgrade success of DividendDistribution! 1.0.1
 ```
 
+### Upgrade vault to 1.1.0
+* Owner: `0xE3b346E1295DB6a991099bAe6B46b317D165B41a`
+* Vault proxy: `0x4a12412E23e876434Fab3ec177C6856EaE83Db79`
+* Start truffle dashboard: `npx truffle dashboard`
+* deploy order: `npx hardhat run scripts/deploy/0_upgrade_vault_1.1.0.js --network truffle-dashboard`
+
+
+## Upgrade vault to 1.1.1
+* `npx hardhat run scripts/0_upgrade_vault_1.1.1.js --network truffle-dashboard`
+* Owner: `0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d`
+```vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+vault native balance -  8165580000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.0.3
+new_vault_version -  1.1.1
+vault upgrade success! 1.1.1```
+
+

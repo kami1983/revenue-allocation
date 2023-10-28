@@ -10,7 +10,13 @@ contract TestEcoDividendDistribution is IEcoDividendDistribution {
     mapping (address => uint256) public inVaultBalanceList;
 
     // Events
-    event EventWithdraw(address indexed _to, address _token, uint256 _value);
+    // event EventWithdraw(address indexed _to, address _token, uint256 _value);
+
+    IEcoVault public vault;
+
+    // constructor(address _vault) {
+    //     vault = IEcoVault(_vault);
+    // }
 
     /**
      * @dev Receive Ether
@@ -23,16 +29,20 @@ contract TestEcoDividendDistribution is IEcoDividendDistribution {
         inVaultBalanceList[_token] += _value;
     }
 
-    function withdraw(address _vault, address _token, address _to, uint256 _value) external {
-        IEcoVault vault = IEcoVault(_vault);
-        require(vault.getDividendAddress() == address(this), 'Vault address is not correct');
-        require(inVaultBalanceList[_token] >= _value, 'Insufficient balance of erc20 token');
+    // function withdraw(address _vault, address _token, address _to, uint256 _value) external {
+    //     IEcoVault vault = IEcoVault(_vault);
+    //     require(vault.getDividendAddress() == address(this), 'Vault address is not correct');
+    //     require(inVaultBalanceList[_token] >= _value, 'Insufficient balance of erc20 token');
 
-        inVaultBalanceList[_token] -= _value;
-        vault.withdraw(_token, _to, _value);
-        emit EventWithdraw(_to, _token, _value);
-        // record received deposit histroy to inVaultBalanceList
+    //     inVaultBalanceList[_token] -= _value;
+    //     vault.withdraw(_token, _to, _value);
+    //     emit EventWithdrawDividends(0, _to, _token, _value);
+    //     // record received deposit histroy to inVaultBalanceList
         
+    // }
+
+    function setVault(address _vault) external {
+        vault = IEcoVault(_vault);
     }
 
     /**
@@ -42,6 +52,12 @@ contract TestEcoDividendDistribution is IEcoDividendDistribution {
      * @param _holder The address of the holder
      */
     function withdrawDividends(uint256 _sid,  address _token, address _holder) external override {
-        require(false, 'This function is not implemented');
+        require(_sid == 0, 'sid must be 0');
+        require(inVaultBalanceList[_token] >= 0, 'Insufficient balance of erc20 token');
+        uint256 _value = inVaultBalanceList[_token];
+        inVaultBalanceList[_token] -= _value;
+        vault.withdraw(_token, _holder, _value);
+        emit EventWithdrawDividends(_sid, _token, _holder, _value);
+        
     }
 }

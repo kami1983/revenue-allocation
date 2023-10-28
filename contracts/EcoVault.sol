@@ -10,6 +10,8 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./IEcoDividendDistribution.sol";
 import "./IEcoVault.sol";
 
+import "hardhat/console.sol";
+
 contract EcoVault is
     IEcoVault,
     IERC721Receiver,
@@ -46,7 +48,7 @@ contract EcoVault is
      * @return The version of the contract
      */
     function impVersion() public pure returns (string memory) {
-        return "1.0.2";
+        return "1.1.1";
     }
 
     // Receive Ether
@@ -86,6 +88,17 @@ contract EcoVault is
         return address(dividend);
     }
 
+    function getUnallocatedFunds(address _token) public view returns (uint256) {
+        if(_token == address(0)){
+            return inVaultBalanceList[_token] - dividendBalanceList[_token];
+        }else{
+            IERC20 token = IERC20(_token);
+            uint256 _newAmount = inVaultBalanceList[_token] - dividendBalanceList[_token];
+            uint256 _unrecordFunds = token.balanceOf(address(this)) - _newAmount;
+            return _unrecordFunds + _newAmount;
+        }
+    }
+
     function depositErc20(address _token, uint256 _amount) public {
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
         IERC20 token = IERC20(_token);
@@ -95,27 +108,22 @@ contract EcoVault is
         );
         token.transferFrom(msg.sender, address(this), _amount);
         inVaultBalanceList[_token] += _amount;
-        // dividend.receiveDeposit(_token, _amount);
         emit EventDeposit(msg.sender, _token, _amount);
     }
-
-    // /**
-    //  * @dev Call the ledger to determine the allocated amount.
-    //  * @param _token The address of the token to be distributed, if native token, use address(0)
-    //  */
-    // function recordForDividends(address _token) override external returns (uint256) {
-    //     uint256 _amount = inVaultBalanceList[_token] - dividendBalanceList[_token];
-    //     require(_amount > 0, "No need to deposit for dividend");
-    //     dividendBalanceList[_token] += _amount;
-    //     dividend.receiveDeposit(_token, _amount);
-    //     return _amount;
-    // }
 
     function recordForDividends(
         address _token
     ) external override returns (uint256) {
-        uint256 _amount = inVaultBalanceList[_token] - dividendBalanceList[_token];
-        require(_amount > 0, "No need to deposit for dividend");
+        uint256 _amount = getUnallocatedFunds(_token);
+        uint256 _recordAmount = inVaultBalanceList[_token] - dividendBalanceList[_token];
+
+        require(_amount > 0, "No need to deposit for dividends.");
+        require(_amount >= _recordAmount, "Conflict with the record data.");
+
+        uint256 _diff = _amount - _recordAmount;
+        if(_diff > 0){
+            inVaultBalanceList[_token] += _diff;
+        }
         dividendBalanceList[_token] += _amount;
         dividend.receiveDeposit(_token, _amount);
         return _amount;
@@ -146,8 +154,6 @@ contract EcoVault is
             emit EventWithdraw(_to, _token, _value);
         }
     }
-
-    // ------- ERC721/ERC1155 interface implementation ------- //
 
     function supportsInterface(
         bytes4 interfaceId
@@ -182,6 +188,5 @@ contract EcoVault is
         return IERC1155Receiver.onERC1155Received.selector;
     }
 
-    
 }
 
