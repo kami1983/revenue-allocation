@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface InterfaceEquityStructure {
+interface InterfaceStakeStructure {
 
     function getEquityVersion(uint _sid) external view returns (uint256);
 

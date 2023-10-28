@@ -1,7 +1,7 @@
 # revenue-allocation
 Receive a payment and distribute it to different accounts based on weights
 
-## InterfaceEquityStructure
+## InterfaceStakeStructure
 ### getEquityVersion()
 * 获取股权结构的版本，如果股权结构发生变化这里的数值一定要发生变化
 
@@ -17,9 +17,9 @@ TypeError: (0 , ethers_1.getAddress) is not a function
       at getSigner (node_modules/@nomicfoundation/hardhat-ethers/src/internal/helpers.ts:60:29)
       at async Promise.all (index 0)
       at getSigners (node_modules/@nomicfoundation/hardhat-ethers/src/internal/helpers.ts:45:30)
-      at deployFixture (test/TestEquityDividendDistribution.js:12:45)
+      at deployFixture (test/TestEcoDividendDistribution.js:12:45)
       at loadFixture (node_modules/@nomicfoundation/hardhat-network-helpers/src/loadFixture.ts:59:18)
-      at Context.<anonymous> (test/TestEquityDividendDistribution.js:232:42)
+      at Context.<anonymous> (test/TestEcoDividendDistribution.js:232:42)
 ```
 <!-- * install ethers@5.7.4 -->
 * It'll solved by `yarn add --dev hardhat @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers`
@@ -29,3 +29,47 @@ TypeError: (0 , ethers_1.getAddress) is not a function
 TypeError: Cannot read properties of undefined (reading 'AddressZero')
 ```
 * Use `ethers.ZeroAddress` instead of `ethers.constants.ZeroAddress
+
+## Deployed
+* Owner: `0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d`
+
+### On goerli
+```
+struct_address -  0x17CFCfB65EF80cb700409c8E7074D021336a2c75
+
+ECO Dividend Distribution -  0x10cE8c0Bf1b5B314ED5aaBa2eB83AFA601067948
+ECO Vault -  0xaa9578396a85806772D27922FDfBaBAa8506F181
+
+```
+
+* verify contract : `npx hardhat verify --network goerli --constructor-args scripts/params/vault-goerli.json 0xaa9578396a85806772D27922FDfBaBAa8506F181`
+
+### On polygon
+```
+struct_address -  0xA956A8c1160A2B3f24e99B8f90d74Bf47521cfc5
+
+ECO Dividend Distribution -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+ECO Vault -  0x63c889Cd71E8AA301910599b66818A24488acaCC
+```
+* verify contract : `npx hardhat verify --network polygon --constructor-args scripts/params/vault-polygon.json 0x63c889Cd71E8AA301910599b66818A24488acaCC`
+
+* None vault: `0x3C42856EB03570E9d88030fEFE42878d1fcfa865`
+* None vault, proxy : `0x4a12412E23e876434Fab3ec177C6856EaE83Db79`
+
+### On polygon upgrade proxy vault for sid = 0
+* AIM Vault proxy : `0x4a12412E23e876434Fab3ec177C6856EaE83Db79`
+```
+vault_address -  `0x4a12412E23e876434Fab3ec177C6856EaE83Db79`
+distribution_address -  `0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE`
+vault native balance -  50000000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+```
+
+### On polygon the dividend distribution upgrade to 1.0.1
+```
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+equity_impVersion -  1.0.0
+equity_owner -  0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d
+new_dividend_distribution -  1.0.1
+vault upgrade success of DividendDistribution! 1.0.1
+```
+

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./InterfaceEquityStructure.sol";
+import "./InterfaceStakeStructure.sol";
 
-contract TestEquityStructure is InterfaceEquityStructure {
+contract TestEquityStructure is InterfaceStakeStructure {
     mapping (uint256 => uint256) public equityVersionList;
     mapping (uint256 => address[]) public payeesList;
     mapping (uint256 => uint256[]) public sharesList;

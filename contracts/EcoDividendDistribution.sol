@@ -3,22 +3,22 @@ pragma solidity ^0.8.9;
 
 // token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./InterfaceEquityStructure.sol";
-import "./IEquityDividendDistribution.sol";
-import "./IEquityVault.sol";
+// import Initializable
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "./InterfaceStakeStructure.sol";
+import "./IEcoDividendDistribution.sol";
+import "./IEcoVault.sol";
 
-import "hardhat/console.sol";
 
-
-contract EquityDividendDistribution is IEquityDividendDistribution {
-    address public owner; // Contract owner
+contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, OwnableUpgradeable {
     address public register; // 
 
     uint256[] private totalShares; // Total number of shares
     // uint256[] private totalDividend; // Total dividend amount
     uint256[] private lastSharesVersion; // The last updated equity version
 
-    InterfaceEquityStructure public equityStructure;
+    InterfaceStakeStructure public equityStructure;
 
     struct Shareholder {
         uint256 shares; // Number of shares
@@ -39,57 +39,31 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
     // sid to balanceOf address
     mapping(uint256 => address) public balanceAddressList;
     mapping(address => uint256) public balanceSidList;
-    
-    
-    
-    // address[] public shareholderAddresses;
 
-    modifier onlyOwner() {
+    modifier onlyRegister() {
         require(msg.sender == register, "Only the owner can call this function");
         _;
     }
 
-    modifier onlyRegister() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
-    }
-
-    constructor(address _equityStructure) {
-        owner = msg.sender;
+    function initialize ( address _equityStructure) public initializer  {
+        __Ownable_init();
+        // owner = msg.sender;
         register = msg.sender;
         updateEquityStructureInterface(_equityStructure);
+    }
+
+    /**
+     * @dev Returns an version of the contract implementation.
+     * @return The version of the contract
+     */
+    function impVersion() public pure returns (string memory) {
+        return "1.0.1";
     }
 
     // update register
     function updateRegister(address _register) public onlyOwner {
         register = _register;
     }
-
-    // transfer owner
-    function transferOwner(address _owner) public onlyOwner {
-        owner = _owner;
-    }
-
-    // Receive Ether
-    // receive() external payable {
-    //     // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
-    //     bool condition = msg.value > totalShares[0];
-
-    //     // get msg user
-    //     // address _user = msg.sender;
-    //     (uint256 _sMapKey,) = getSidRelatedInfos(0);
-
-    //     if (condition) {
-    //         // Check equity structure version
-    //         uint256 _version = equityStructure.getEquityVersion(midMap[_sMapKey]);
-    //         if (_version > lastSharesVersion[0]) {
-    //             // Update equity structure
-    //             _refreshEquityStructure(_sMapKey);
-    //         }
-
-    //         _distributeDividend(_sMapKey, address(0));
-    //     }
-    // }
 
     function receiveDeposit(address _token, uint256 _value) external{
 
@@ -107,9 +81,6 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
         require(_value > _total_shares, "You need to send more balance");
 
-        // get msg user
-        // address _user = msg.sender;
-        // (uint256 _sMapKey,) = getSidRelatedInfos(0);
 
         uint256 _sMapKey = sidMap[_sid];
         uint256 _version = equityStructure.getEquityVersion(_sid);
@@ -119,25 +90,13 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
         }
         _distributeDividend(_sMapKey, _token, _value);
 
-        // if (condition) {
-        //     // Check equity structure version
-        //     uint256 _version = equityStructure.getEquityVersion(_sid);
-        //     if (_version > lastSharesVersion[0]) {
-        //         // Update equity structure
-        //         _refreshEquityStructure(_sMapKey);
-        //     }
-
-        //     _distributeDividend(_sMapKey, address(0));
-        // }
-
     }
 
     // Register a Shares, will set the sid and sidExists
     function registerSid(uint256 _sid, address _vault_address) public onlyRegister {
 
-        // console.log('registerSid', _sid, address(_vault), _vault.getDividendAddress());
         require(_vault_address != address(0), "balanceOfAddress is zero");
-        IEquityVault _vault = IEquityVault(_vault_address);
+        IEcoVault _vault = IEcoVault(_vault_address);
         require(_vault.getDividendAddress() == address(this), 'Vault address is not correct');
 
         // sid already registered
@@ -160,6 +119,20 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
         mapNextId++;
     }
 
+    function upgradeVaultAddress(uint256 _sid, address _vault_address) public onlyOwner {
+        require(_vault_address != address(0), "balanceOfAddress is zero");
+        IEcoVault _vault = IEcoVault(_vault_address);
+        require(_vault.getDividendAddress() == address(this), 'Vault address is not correct');
+
+        // sid already registered
+        require(balanceAddressList[_sid] != address(0), "sid not registered");
+        // remove old vault address
+        delete balanceSidList[balanceAddressList[_sid]];
+        // set new vault address
+        balanceAddressList[_sid] = _vault_address;
+        balanceSidList[_vault_address] = _sid;
+    }
+
     function getSidRelatedInfos(uint256 _sid) public view returns (uint256, address) {
         require(balanceAddressList[_sid] != address(0), "sid not registered");
         return (sidMap[_sid], balanceAddressList[_sid]);
@@ -167,8 +140,7 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
 
     // Update the address of the equity structure contract, can only be called by the contract owner
     function updateEquityStructureInterface(address _equityStructure) public onlyOwner {
-        equityStructure = InterfaceEquityStructure(_equityStructure);
-        // _refreshEquityStructure();
+        equityStructure = InterfaceStakeStructure(_equityStructure);
     }
 
     // Refresh the equity structure
@@ -265,19 +237,9 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
     // Distribute dividends
     function _distributeDividend(uint256 _mid, address _token, uint256 _deposit_value) internal {
 
-        // Check the current balance of this contract
-        // uint256 contractBalance = address(this).balance;
-        // require(contractBalance > 0, "No funds available to distribute");
-
-        // Get the total amount to distribute for the current equity
-        // uint256 _dividendAmount = contractBalance - (totalDividend[_mid] - _totalWithdrawnFunds(_mid, _token));
-
         uint256 _dividendAmount = _deposit_value;
 
         require(_dividendAmount > 0, "Dividend amount must be greater than 0");
-
-        // Accumulate to the total distribution amount
-        // totalDividend[_mid] += _dividendAmount;
 
         // Calculate the dividend payment for each share
         uint256 dividendPaymentEachShare = (_dividendAmount) / totalShares[_mid];
@@ -309,7 +271,7 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
         shareholder.totalWithdrawnList[_token] += amountToWithdraw;
 
         address _vault_address = balanceAddressList[_sid];
-        IEquityVault vault = IEquityVault(_vault_address);
+        IEcoVault vault = IEcoVault(_vault_address);
         require(vault.getDividendAddress() == address(this), 'Vault address is not correct');
 
         vault.withdraw(_token, _holder, amountToWithdraw);
@@ -329,10 +291,6 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
         return totalShares[sidMap[_sid]];
     }
 
-    // function getTotalDividend(uint256 _sid) external view returns (uint256) {
-    //     return totalDividend[sidMap[_sid]];
-    // }
-
     /**
      * @dev Get the last updated equity version
      * @param _sid The sid of the shareholder
@@ -343,6 +301,7 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
     }
 
     /**
+     * //TODO:: rename to getShareholderInfos
      * @dev Get shareholder information
      * @param _sid The sid of the shareholder
      * @param _token The token address, if native token, use address(0)
@@ -359,19 +318,10 @@ contract EquityDividendDistribution is IEquityDividendDistribution {
          );
     }
 
-
     // Get the total withdrawn funds
     function totalWithdrawnFunds(uint256 _sid, address _token) public view returns (uint256) {
-
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
         return _totalWithdrawnFunds(_sMapKey, _token);
-
-        // uint256 totalWithdrawn = 0;
-        // for (uint256 i = 0; i < shareholderAddressesList[_sMapKey].length; i++) {
-        //     address shareholderAddr = shareholderAddressesList[_sMapKey][i];
-        //     totalWithdrawn += shareholdersList[_sMapKey][shareholderAddr].totalWithdrawn;
-        // }
-        // return totalWithdrawn;
     }
 
     function _totalWithdrawnFunds(uint256 _mid, address _token) internal view returns (uint256) {

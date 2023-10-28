@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./IEquityDividendDistribution.sol";
-import "./IEquityVault.sol";
+import "./IEcoDividendDistribution.sol";
+import "./IEcoVault.sol";
 
-contract TestEquityDividendDistribution is IEquityDividendDistribution {
+contract TestEcoDividendDistribution is IEcoDividendDistribution {
 
     // Record received deposit histroy
     mapping (address => uint256) public inVaultBalanceList;
@@ -24,7 +24,7 @@ contract TestEquityDividendDistribution is IEquityDividendDistribution {
     }
 
     function withdraw(address _vault, address _token, address _to, uint256 _value) external {
-        IEquityVault vault = IEquityVault(_vault);
+        IEcoVault vault = IEcoVault(_vault);
         require(vault.getDividendAddress() == address(this), 'Vault address is not correct');
         require(inVaultBalanceList[_token] >= _value, 'Insufficient balance of erc20 token');
 

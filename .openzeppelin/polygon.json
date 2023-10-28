@@ -1,0 +1,693 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x94ed1ccB015FB4BBA8A14963d5755CB6Bb554084",
+    "txHash": "0x011d0033a45ffd9271240105397406b03ad54027c8b20942c539f14661d1a19c"
+  },
+  "proxies": [
+    {
+      "address": "0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE",
+      "txHash": "0xa1b72813a7606fc17f040e0298feb35c53df9287d17c425ef61a7a588c284e8a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4a12412E23e876434Fab3ec177C6856EaE83Db79",
+      "txHash": "0xbfb9c4fc55104c4e135d69c1f1397fd36bf78bad8fc559ae79817251feebcd68",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "8b33dd3547e841d13b0ecb838bf267555734451f1470f2d86ef5990c659bf537": {
+      "address": "0x3ef08cbb9832fc8f8856A1d1F4FBf33416aA2826",
+      "txHash": "0xf01ca4a7dfe60c5ce79d0bd5464d647de739176b7a5723c5bda05883426433ea",
+      "layout": {
+        "solcVersion": "0.8.11",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "register",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:17"
+          },
+          {
+            "label": "totalShares",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:19"
+          },
+          {
+            "label": "lastSharesVersion",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:21"
+          },
+          {
+            "label": "equityStructure",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(InterfaceStakeStructure)3351",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:23"
+          },
+          {
+            "label": "shareholdersList",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_array(t_mapping(t_address,t_struct(Shareholder)1840_storage))dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:33"
+          },
+          {
+            "label": "shareholderAddressesList",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_uint256,t_array(t_address)dyn_storage)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:34"
+          },
+          {
+            "label": "sidMap",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:38"
+          },
+          {
+            "label": "midMap",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:40"
+          },
+          {
+            "label": "balanceAddressList",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:42"
+          },
+          {
+            "label": "balanceSidList",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:43"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_mapping(t_address,t_struct(Shareholder)1840_storage))dyn_storage": {
+            "label": "mapping(address => struct EcoDividendDistribution.Shareholder)[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(InterfaceStakeStructure)3351": {
+            "label": "contract InterfaceStakeStructure",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(Shareholder)1840_storage)": {
+            "label": "mapping(address => struct EcoDividendDistribution.Shareholder)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_address)dyn_storage)": {
+            "label": "mapping(uint256 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Shareholder)1840_storage": {
+            "label": "struct EcoDividendDistribution.Shareholder",
+            "members": [
+              {
+                "label": "shares",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "exists",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "dividendBalanceList",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "totalWithdrawnList",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "de19492f05e0ae762636c3ea0b090048cbbc42fa1d765e11fdac957288d2cd9e": {
+      "address": "0x3C42856EB03570E9d88030fEFE42878d1fcfa865",
+      "txHash": "0xe26743f0cb4c8f5cf48f2e7c79851d7ec255bb14975c42a81caf195b029166a7",
+      "layout": {
+        "solcVersion": "0.8.11",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "inVaultBalanceList",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "NoneEcoVault",
+            "src": "contracts/NoneEcoVault.sol:21"
+          },
+          {
+            "label": "outVaultBalanceList",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "NoneEcoVault",
+            "src": "contracts/NoneEcoVault.sol:22"
+          },
+          {
+            "label": "dividend",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(IEcoDividendDistribution)1833",
+            "contract": "NoneEcoVault",
+            "src": "contracts/NoneEcoVault.sol:24"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IEcoDividendDistribution)1833": {
+            "label": "contract IEcoDividendDistribution",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "ae6ac03bc52af119dc1a031737e44aa3e75d60e327dbfe94756bd60cc7760b0c": {
+      "address": "0x28004730A5B1509f9e136dFE2c44354284469861",
+      "txHash": "0x8fdf5d6785d0bbf743612bdf82df4a9f50db293628d3bf9bf1698909e98905c4",
+      "layout": {
+        "solcVersion": "0.8.11",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "inVaultBalanceList",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:20"
+          },
+          {
+            "label": "outVaultBalanceList",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:21"
+          },
+          {
+            "label": "dividend",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(IEcoDividendDistribution)2268",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:23"
+          },
+          {
+            "label": "dividendBalanceList",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:25"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IEcoDividendDistribution)2268": {
+            "label": "contract IEcoDividendDistribution",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "1fee725d6a5585a8d108382777d785dbaa1b11698c97e9cdf08b308185fd39d3": {
+      "address": "0x2155Ab0E7e908e3cB59e0bd6cDac1589945f923f",
+      "txHash": "0x2aeef3dfb3d995d1c15580fe84fcc933e9862ed8d7ca561bd7a743119ada2bd1",
+      "layout": {
+        "solcVersion": "0.8.11",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "register",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:17"
+          },
+          {
+            "label": "totalShares",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:19"
+          },
+          {
+            "label": "lastSharesVersion",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:21"
+          },
+          {
+            "label": "equityStructure",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(InterfaceStakeStructure)2677",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:23"
+          },
+          {
+            "label": "shareholdersList",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_array(t_mapping(t_address,t_struct(Shareholder)1531_storage))dyn_storage",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:33"
+          },
+          {
+            "label": "shareholderAddressesList",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_uint256,t_array(t_address)dyn_storage)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:34"
+          },
+          {
+            "label": "sidMap",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:38"
+          },
+          {
+            "label": "midMap",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:40"
+          },
+          {
+            "label": "balanceAddressList",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:42"
+          },
+          {
+            "label": "balanceSidList",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoDividendDistribution",
+            "src": "contracts/EcoDividendDistribution.sol:43"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_mapping(t_address,t_struct(Shareholder)1531_storage))dyn_storage": {
+            "label": "mapping(address => struct EcoDividendDistribution.Shareholder)[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(InterfaceStakeStructure)2677": {
+            "label": "contract InterfaceStakeStructure",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(Shareholder)1531_storage)": {
+            "label": "mapping(address => struct EcoDividendDistribution.Shareholder)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_address)dyn_storage)": {
+            "label": "mapping(uint256 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Shareholder)1531_storage": {
+            "label": "struct EcoDividendDistribution.Shareholder",
+            "members": [
+              {
+                "label": "shares",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "exists",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "dividendBalanceList",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "totalWithdrawnList",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
