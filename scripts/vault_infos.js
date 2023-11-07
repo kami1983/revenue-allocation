@@ -34,16 +34,25 @@ async function main() {
   const vault_balance = await ethers.provider.getBalance(vault_address);
   console.log('vault native balance - ', vault_balance.toString(), 'distribution: ', await vault_proxy.getDividendAddress());
 
+  console.log('implement version - ', await vault_proxy.impVersion());
+
+  const implementation_address = await upgrades.erc1967.getImplementationAddress(vault_address)
+  const admin_address = await upgrades.erc1967.getAdminAddress(vault_address)
+
+  console.log(`proxyAddress == vault_address: ${vault_address}`)
+  console.log(`implementationAddress: ${implementation_address}`)
+  console.log(`adminAddress: ${admin_address}`)
+
   // Get equity contract balance.
 
 
   // At distribution_address
-  const equity_proxy = await ethers.getContractAt("EcoDividendDistribution", distribution_address);
+  // const equity_proxy = await ethers.getContractAt("EcoDividendDistribution", distribution_address);
 
-  const all_shareholders = await equity_proxy.getAllShareholders(sid);
-  console.log('all_shareholders - ', all_shareholders)
-  const shareholder_details = await equity_proxy.getShareholdersList(sid, ethers.constants.AddressZero, '0xE3b346E1295DB6a991099bAe6B46b317D165B41a');
-  console.log('shareholder_details - ', shareholder_details)
+  // const all_shareholders = await equity_proxy.getAllShareholders(sid);
+  // console.log('all_shareholders - ', all_shareholders)
+  // const shareholder_details = await equity_proxy.getShareholdersList(sid, ethers.constants.AddressZero, '0xE3b346E1295DB6a991099bAe6B46b317D165B41a');
+  // console.log('shareholder_details - ', shareholder_details)
 
 }
 

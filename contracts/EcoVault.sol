@@ -19,16 +19,13 @@ contract EcoVault is
     Initializable,
     OwnableUpgradeable
 {
+
     mapping(address => uint256) public inVaultBalanceList;
     mapping(address => uint256) public outVaultBalanceList;
 
     IEcoDividendDistribution private dividend;
 
     mapping(address => uint256) public dividendBalanceList;
-
-    // constructor(address _dividend) {
-    //     dividend = IEcoDividendDistribution(_dividend);
-    // }
 
     function initialize(address _dividend) public initializer {
         __Ownable_init();
@@ -48,15 +45,13 @@ contract EcoVault is
      * @return The version of the contract
      */
     function impVersion() public pure returns (string memory) {
-        return "1.1.1";
+        return "1.2.1";
     }
 
     // Receive Ether
     receive() external payable {
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
         uint deposit_value = msg.value;
-        inVaultBalanceList[address(0)] += deposit_value;
-        // dividend.receiveDeposit(address(0), deposit_value);
         emit EventDeposit(msg.sender, address(0), deposit_value);
     }
 
@@ -88,44 +83,42 @@ contract EcoVault is
         return address(dividend);
     }
 
-    function getUnallocatedFunds(address _token) public view returns (uint256) {
-        if(_token == address(0)){
-            return inVaultBalanceList[_token] - dividendBalanceList[_token];
-        }else{
+    function getAllInVaultBalance(address _token)
+        public
+        view
+        returns (uint256)
+    {
+        if (_token == address(0)) {
+            return address(this).balance + outVaultBalanceList[address(0)];
+        } else {
             IERC20 token = IERC20(_token);
-            uint256 _newAmount = inVaultBalanceList[_token] - dividendBalanceList[_token];
-            uint256 _unrecordFunds = token.balanceOf(address(this)) - _newAmount;
-            return _unrecordFunds + _newAmount;
+            return token.balanceOf(address(this)) + outVaultBalanceList[_token];
         }
     }
 
-    function depositErc20(address _token, uint256 _amount) public {
-        // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
-        IERC20 token = IERC20(_token);
-        require(
-            token.allowance(msg.sender, address(this)) >= _amount,
-            "You are not allowed to transfer this amount"
-        );
-        token.transferFrom(msg.sender, address(this), _amount);
-        inVaultBalanceList[_token] += _amount;
-        emit EventDeposit(msg.sender, _token, _amount);
+    function getUnallocatedFunds(address _token) public view returns (uint256) {
+        if(_token == address(0)){
+            uint256 _totalAmount = address(this).balance + outVaultBalanceList[address(0)];
+            uint256 _unrecordFunds = _totalAmount - dividendBalanceList[address(0)];
+            return _unrecordFunds;
+        }else{
+            IERC20 token = IERC20(_token);
+            uint256 _totalAmount = token.balanceOf(address(this)) + outVaultBalanceList[_token];
+            uint256 _unrecordFunds = _totalAmount - dividendBalanceList[_token];
+            return _unrecordFunds;
+        }
     }
 
     function recordForDividends(
         address _token
     ) external override returns (uint256) {
         uint256 _amount = getUnallocatedFunds(_token);
-        uint256 _recordAmount = inVaultBalanceList[_token] - dividendBalanceList[_token];
 
         require(_amount > 0, "No need to deposit for dividends.");
-        require(_amount >= _recordAmount, "Conflict with the record data.");
 
-        uint256 _diff = _amount - _recordAmount;
-        if(_diff > 0){
-            inVaultBalanceList[_token] += _diff;
-        }
         dividendBalanceList[_token] += _amount;
         dividend.receiveDeposit(_token, _amount);
+        emit EventDividend(address(this), _token, _amount);
         return _amount;
     }
 

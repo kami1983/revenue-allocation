@@ -9,6 +9,7 @@ interface IEcoVault {
     // Events
     event EventDeposit(address indexed _from, address _token, uint256 _value);
     event EventWithdraw(address indexed _to, address _token, uint256 _value);
+    event EventDividend(address indexed _from, address _token, uint256 _value);
 
     /**
      * @dev Get the address of the dividend contract
@@ -16,7 +17,7 @@ interface IEcoVault {
      */
     function getDividendAddress() external view returns (address);
 
-    function depositErc20(address _token, uint256 _amount) external ;
+    // function depositErc20(address _token, uint256 _amount) external ;
 
     /**
      * @dev Call the ledger to determine the allocated amount.

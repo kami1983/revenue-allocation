@@ -90,3 +90,27 @@ new_vault_version -  1.1.1
 vault upgrade success! 1.1.1```
 
 
+## Upgrade vault to 1.2.0
+* `npx hardhat run scripts/0_upgrade_vault_1.2.0.js --network truffle-dashboard`
+* Owner: `0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d`
+```
+vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+vault native balance -  8165580000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.1.2
+new_vault_version -  1.2.0
+vault upgrade success! 1.2.0
+```
+
+## Upgrade vault to 1.2.1
+* `npx hardhat run scripts/0_upgrade_vault_1.2.1.js --network truffle-dashboard`
+* Owner: `0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d`
+```
+vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+vault native balance -  8165580000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.2.0
+new_vault_version -  1.2.1
+vault upgrade success! 1.2.1
+```
+
+## Verify vault implementation contract 0x0FB8ADD7c4E86650a00edBCAf233fB24CBB795bC
+* npx hardhat verify --network polygon 0x0FB8ADD7c4E86650a00edBCAf233fB24CBB795bC

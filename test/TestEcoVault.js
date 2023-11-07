@@ -59,7 +59,7 @@ const {
         expect(await ethers.provider.getBalance(vault.address)).to.equal(pay_amount);
 
         // Check equity contract balance.
-        expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ethers.constants.AddressZero)).to.equal(pay_amount);
 
         // Get after test_a balance.
         const after_test_a_balance = await ethers.provider.getBalance(test_a.address);
@@ -79,11 +79,14 @@ const {
         const owner_balance = await ttk.balanceOf(owner.address);
 
         // approve vault contract to transfer ERC20 coins.
-        await ttk.approve(vault.address, pay_amount);
-        await vault.depositErc20(ttk.address, pay_amount);
+        // await ttk.approve(vault.address, pay_amount);
+        // await vault.depositErc20(ttk.address, pay_amount);
+
+        // Send ERC20 token to vault contract.
+        await ttk.transfer(vault.address, pay_amount);
 
         // Check equity contract balance.
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(pay_amount);
 
         // Check ERC20 token balance of vault.
         expect(await ttk.balanceOf(vault.address)).to.equal(pay_amount);
@@ -113,13 +116,15 @@ const {
         expect(await ethers.provider.getBalance(vault.address)).to.equal(pay_amount);
 
         // Check equity contract balance.
-        expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ethers.constants.AddressZero)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ethers.constants.AddressZero)).to.equal(0);
         expect(await vault.outVaultBalanceList(ethers.constants.AddressZero)).to.equal(0);
 
         await vault.recordForDividends(ethers.constants.AddressZero);
 
-        expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ethers.constants.AddressZero)).to.equal(0);
+        expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ethers.constants.AddressZero)).to.equal(0);
 
@@ -130,7 +135,8 @@ const {
         expect(await ethers.provider.getBalance(test_b.address)).to.equal(BigInt(test_b_balance)+BigInt(pay_amount));
 
         // Check equity contract balance.
-        expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ethers.constants.AddressZero)).to.equal(0);
+        expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount);
 
@@ -147,19 +153,22 @@ const {
         const pay_amount = ethers.utils.parseEther("100.0");
 
         // Approve vault contract to transfer ERC20 coins.
-        await ttk.approve(vault.address, pay_amount);
-        await vault.depositErc20(ttk.address, pay_amount);
+        // await ttk.approve(vault.address, pay_amount);
+        // await vault.depositErc20(ttk.address, pay_amount);
+        await ttk.transfer(vault.address, pay_amount);
 
         // Check vault ERC20 token balance.
         expect(await ttk.balanceOf(vault.address)).to.equal(pay_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(0);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
 
         await vault.recordForDividends(ttk.address);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
 
@@ -175,7 +184,8 @@ const {
         // Check test_a ERC20 token balance.
         expect(await ttk.balanceOf(test_a.address)).to.equal(pay_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(pay_amount);
   
@@ -190,8 +200,9 @@ const {
         const all_paied_amount = ethers.utils.parseEther("200.0");
 
         // Approve vault contract to transfer ERC20 coins.
-        await ttk.approve(vault.address, pay_amount);
-        await vault.depositErc20(ttk.address, pay_amount);
+        // await ttk.approve(vault.address, pay_amount);
+        // await vault.depositErc20(ttk.address, pay_amount);
+        await ttk.transfer(vault.address, pay_amount);
 
         // Direct transfer ERC20 coins to vault contract.
         await ttk.transfer(vault.address, pay_amount);
@@ -199,7 +210,8 @@ const {
         // Check vault ERC20 token balance.
         expect(await ttk.balanceOf(vault.address)).to.equal(all_paied_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(all_paied_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(all_paied_amount);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(0);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
         // Get unallocated funds.
@@ -207,7 +219,8 @@ const {
 
         await vault.recordForDividends(ttk.address);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(all_paied_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(all_paied_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(all_paied_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
 
@@ -223,7 +236,8 @@ const {
         // Check test_a ERC20 token balance.
         expect(await ttk.balanceOf(test_a.address)).to.equal(all_paied_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(all_paied_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(all_paied_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(all_paied_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(all_paied_amount);
   
@@ -242,7 +256,8 @@ const {
         // Check vault ERC20 token balance.
         expect(await ttk.balanceOf(vault.address)).to.equal(pay_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(0);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(0);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
         // Get unallocated funds.
@@ -250,9 +265,11 @@ const {
 
         await vault.recordForDividends(ttk.address);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(0);
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
 
         // Check test_a ERC20 token balance.
         expect(await ttk.balanceOf(test_a.address)).to.equal(0);
@@ -266,23 +283,27 @@ const {
         // Check test_a ERC20 token balance.
         expect(await ttk.balanceOf(test_a.address)).to.equal(pay_amount);
 
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
 
         // 
         await ttk.transfer(vault.address, pay_amount);
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(pay_amount);
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(pay_amount);
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(pay_amount);
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(pay_amount);
 
         // Get unallocated funds.
         expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(pay_amount);
         await vault.recordForDividends(ttk.address);
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
+        ethers.utils.parseEther("200.0")
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(pay_amount);
+
+
 
         // Widthdraw ERC20 token from vault contract.
         await equity.withdrawDividends(0, ttk.address, test_a.address);
@@ -290,7 +311,9 @@ const {
         expect(await ttk.balanceOf(vault.address)).to.equal(0);
         // Check test_a ERC20 token balance.
         expect(await ttk.balanceOf(test_a.address)).to.equal(ethers.utils.parseEther("200.0"));
-        expect(await vault.inVaultBalanceList(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
+        expect(await vault.getAllInVaultBalance(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
+        expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
+
         expect(await vault.dividendBalanceList(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
         expect(await vault.outVaultBalanceList(ttk.address)).to.equal(ethers.utils.parseEther("200.0"));
         expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);

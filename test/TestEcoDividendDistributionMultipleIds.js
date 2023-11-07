@@ -59,7 +59,7 @@ describe("TestEcoDividendDistribution", function () {
       // Check total shares.
       expect(await equity.getTotalShares(sid)).to.equal(5);
       // Check total dividend amount.
-      expect(await vault0.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(0);
+      expect(await vault0.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(0);
       // Check current shares version .
       expect(await equity.getLastSharesVersion(sid)).to.equal(1);
 
@@ -116,9 +116,12 @@ describe("TestEcoDividendDistribution", function () {
 
       // deposit 100 TTK0.
       const pay_amount0 = ethers.utils.parseEther("100.0");
-      await ttk0.approve(vault2.address, pay_amount0);
-      await vault2.depositErc20(ttk0.address, pay_amount0);
-      expect(await vault2.inVaultBalanceList(ttk0.address)).to.equal(pay_amount0);
+      await ttk0.transfer(vault2.address, pay_amount0);
+
+      // await ttk0.approve(vault0.address, pay_amount0);
+      // await ttk0.approve(vault2.address, pay_amount0);
+      // await vault2.depositErc20(ttk0.address, pay_amount0);
+      expect(await vault2.getAllInVaultBalance(ttk0.address)).to.equal(pay_amount0);
       expect(await ethers.provider.getBalance(vault2.address)).to.equal(0);
       expect(await ttk0.balanceOf(vault2.address)).to.equal(pay_amount0);
 
@@ -126,9 +129,10 @@ describe("TestEcoDividendDistribution", function () {
 
       // deposit 200 TTK1.
       const pay_amount1 = ethers.utils.parseEther("200.0");
-      await ttk1.approve(vault2.address, pay_amount1);
-      await vault2.depositErc20(ttk1.address, pay_amount1);
-      expect(await vault2.inVaultBalanceList(ttk1.address)).to.equal(pay_amount1);
+      await ttk1.transfer(vault2.address, pay_amount1);
+      // await ttk1.approve(vault2.address, pay_amount1);
+      // await vault2.depositErc20(ttk1.address, pay_amount1);
+      expect(await vault2.getAllInVaultBalance(ttk1.address)).to.equal(pay_amount1);
       expect(await ethers.provider.getBalance(vault2.address)).to.equal(0);
       expect(await ttk1.balanceOf(vault2.address)).to.equal(pay_amount1);  
 
@@ -136,9 +140,10 @@ describe("TestEcoDividendDistribution", function () {
 
       // deposit 300 TTK2.
       const pay_amount2 = ethers.utils.parseEther("300.0");
-      await ttk2.approve(vault2.address, pay_amount2);
-      await vault2.depositErc20(ttk2.address, pay_amount2);
-      expect(await vault2.inVaultBalanceList(ttk2.address)).to.equal(pay_amount2);
+      await ttk2.transfer(vault2.address, pay_amount2);
+      // await ttk2.approve(vault2.address, pay_amount2);
+      // await vault2.depositErc20(ttk2.address, pay_amount2);
+      expect(await vault2.getAllInVaultBalance(ttk2.address)).to.equal(pay_amount2);
       expect(await ethers.provider.getBalance(vault2.address)).to.equal(0);
       expect(await ttk2.balanceOf(vault2.address)).to.equal(pay_amount2);
 
@@ -156,10 +161,10 @@ describe("TestEcoDividendDistribution", function () {
       await vault2.recordForDividends(ethers.constants.AddressZero);
 
       // Verify vault contract data.
-      expect(await vault2.inVaultBalanceList(ttk0.address)).to.equal(pay_amount0);
-      expect(await vault2.inVaultBalanceList(ttk1.address)).to.equal(pay_amount1);
-      expect(await vault2.inVaultBalanceList(ttk2.address)).to.equal(pay_amount2);
-      expect(await vault2.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(pay_amount3);
+      expect(await vault2.getAllInVaultBalance(ttk0.address)).to.equal(pay_amount0);
+      expect(await vault2.getAllInVaultBalance(ttk1.address)).to.equal(pay_amount1);
+      expect(await vault2.getAllInVaultBalance(ttk2.address)).to.equal(pay_amount2);
+      expect(await vault2.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(pay_amount3);
 
       expect(await vault2.outVaultBalanceList(ttk0.address)).to.equal(0);
       expect(await vault2.outVaultBalanceList(ttk1.address)).to.equal(0);

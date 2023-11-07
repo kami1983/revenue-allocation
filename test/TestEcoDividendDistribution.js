@@ -37,7 +37,7 @@ describe("TestEcoDividendDistribution", function () {
       // Check total shares.
       expect(await equity.getTotalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(0);
+      expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(0);
       // Check current shares version .
       expect(await equity.getLastSharesVersion(0)).to.equal(1);
 
@@ -132,7 +132,7 @@ describe("TestEcoDividendDistribution", function () {
       // Check total shares.
       expect(await equity.getTotalShares(0)).to.equal(5);
       // Check total dividend amount.
-      expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(300);
+      expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(300);
       // Check current shares version .
       expect(await equity.getLastSharesVersion(0)).to.equal(2);
       
@@ -169,7 +169,7 @@ describe("TestEcoDividendDistribution", function () {
       expect(await vault.dividendBalanceList(ethers.constants.AddressZero)).to.equal(0);
       await vault.recordForDividends(ethers.constants.AddressZero);
       expect(await vault.dividendBalanceList(ethers.constants.AddressZero)).to.equal(100);
-      expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(100);
+      expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(100);
       console.log(' ethers.constants.AddressZero - ', ethers.constants.AddressZero);
       expect(await equity.totalWithdrawnFunds(0, ethers.constants.AddressZero)).to.equal(0);
 
@@ -189,7 +189,7 @@ describe("TestEcoDividendDistribution", function () {
       // Check test_a balance 
       expect(await ethers.provider.getBalance(test_a.address)).to.equal(10000000000000000000040n);
       // Check total dividend amount.
-      expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(100);
+      expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(100);
       // Check total withdrawn funds.
       expect(await equity.totalWithdrawnFunds(0, ethers.constants.AddressZero)).to.equal(40);
 
@@ -217,7 +217,7 @@ describe("TestEcoDividendDistribution", function () {
       // Check test_b balance
       expect(await ethers.provider.getBalance(test_b.address)).to.equal(10000000000000000000000n);
       // Check total dividend amount.
-      expect(await vault.inVaultBalanceList(ethers.constants.AddressZero)).to.equal(200);
+      expect(await vault.getAllInVaultBalance(ethers.constants.AddressZero)).to.equal(200);
       // Check total withdrawn funds.
       expect(await equity.totalWithdrawnFunds(0, ethers.constants.AddressZero)).to.equal(80);
 
