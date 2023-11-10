@@ -27,5 +27,9 @@ interface IEcoVault {
 
     function withdraw(address _token, address _to, uint256 _value) external  ;
 
+    function setAssignAccount(address _assignAccount) external;
+
+    function getAssignAccount() external view returns (address);
+
 }
 

@@ -22,7 +22,7 @@ describe("TestEcoDividendDistribution", function () {
 
     // Deploy a vault contract for sid = 0.
     const EcoVault = await ethers.getContractFactory("EcoVault");
-    const vault = await upgrades.deployProxy(EcoVault, [equity_proxy.address], { initializer: 'initialize' });
+    const vault = await upgrades.deployProxy(EcoVault, [equity_proxy.address, owner.address], { initializer: 'initialize' });
     await vault.deployed();
 
     await equity_proxy.registerSid(0, vault.address);

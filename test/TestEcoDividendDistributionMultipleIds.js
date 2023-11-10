@@ -14,8 +14,6 @@ describe("TestEcoDividendDistribution", function () {
     const Structre = await ethers.getContractFactory("TestEquityStructure");
     const struct = await Structre.deploy(0, [test_a.address, test_b.address], [2, 3]);
 
-  
-
     struct.updateEquityStructure(2, [test_b.address, test_c.address, test_d.address], [2,2,6]);
     struct.updateEquityStructure(4, [test_d.address, test_e.address, test_f.address], [1,1,1]);
 
@@ -28,16 +26,15 @@ describe("TestEcoDividendDistribution", function () {
 
     const EcoVault = await ethers.getContractFactory("EcoVault");
     
-
-    const vault0 = await upgrades.deployProxy(EcoVault, [equity_proxy.address], { initializer: 'initialize' });
+    const vault0 = await upgrades.deployProxy(EcoVault, [equity_proxy.address, owner.address], { initializer: 'initialize' });
     await vault0.deployed();
     await equity_proxy.registerSid(0, vault0.address);
 
-    const vault2 = await upgrades.deployProxy(EcoVault, [equity_proxy.address], { initializer: 'initialize' });
+    const vault2 = await upgrades.deployProxy(EcoVault, [equity_proxy.address, owner.address], { initializer: 'initialize' });
     await vault2.deployed();
     await equity_proxy.registerSid(2, vault2.address);
 
-    const vault4 = await upgrades.deployProxy(EcoVault, [equity_proxy.address], { initializer: 'initialize' });
+    const vault4 = await upgrades.deployProxy(EcoVault, [equity_proxy.address, owner.address], { initializer: 'initialize' });
     await vault4.deployed();
     await equity_proxy.registerSid(4, vault4.address);
 

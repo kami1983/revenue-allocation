@@ -20,8 +20,8 @@ async function main() {
   // const distribution_address = process.env.DATA_DEBUG_DIVIDEND_DISTRIBUTION_ADDRESS;
   const distribution_address = network == POLYGON  ? process.env.DATA_POLYGON_DIVIDEND_DISTRIBUTION_ADDRESS : process.env.DATA_GOERLI_DIVIDEND_DISTRIBUTION_ADDRESS;
 
-  // const vault_address = process.env.VAULT_DEBUG_ADDRESS
-  const vault_address = network == POLYGON  ? process.env.VAULT_POLYGON_ADDRESS : process.env.VAULT_GOERLI_ADDRESS;
+  const vault_address = '0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6'
+  // const vault_address = network == POLYGON  ? process.env.VAULT_POLYGON_ADDRESS : process.env.VAULT_GOERLI_ADDRESS;
 
   // Check vault contract balance.
   console.log('vault_address - ', vault_address)
@@ -43,9 +43,7 @@ async function main() {
   console.log(`implementationAddress: ${implementation_address}`)
   console.log(`adminAddress: ${admin_address}`)
 
-  // Get equity contract balance.
-
-
+  
   // At distribution_address
   // const equity_proxy = await ethers.getContractAt("EcoDividendDistribution", distribution_address);
 

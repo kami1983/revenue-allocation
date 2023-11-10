@@ -57,7 +57,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
      * @return The version of the contract
      */
     function impVersion() public pure returns (string memory) {
-        return "1.0.1";
+        return "1.1.0";
     }
 
     // update register
@@ -73,6 +73,11 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
         // Get sid
         uint256 _sid = balanceSidList[_from];
 
+        // Get vault address
+        address _vault_address = balanceAddressList[_sid];
+        // Get assign account
+        address _assignAccount = IEcoVault(_vault_address).getAssignAccount();
+
         // Check sid exists
         require(balanceAddressList[_sid] == _from, "sid not registered");
 
@@ -81,14 +86,13 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
         require(_value > _total_shares, "You need to send more balance");
 
-
         uint256 _sMapKey = sidMap[_sid];
         uint256 _version = equityStructure.getEquityVersion(_sid);
-        if (_version > lastSharesVersion[0]) {
+        if (_version > lastSharesVersion[_sid]) {
                 // Update equity structure
             _refreshEquityStructure(_sMapKey);
         }
-        _distributeDividend(_sMapKey, _token, _value);
+        _distributeDividend(_sMapKey, _token, _value, _assignAccount);
 
     }
 
@@ -235,17 +239,26 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
     }
 
     // Distribute dividends
-    function _distributeDividend(uint256 _mid, address _token, uint256 _deposit_value) internal {
+    function _distributeDividend(uint256 _mid, address _token, uint256 _deposit_value, address _assignAccount) internal {
 
         uint256 _dividendAmount = _deposit_value;
 
         require(_dividendAmount > 0, "Dividend amount must be greater than 0");
 
+        // Get assign account hold shares
+        uint256 _assignAccountShares = shareholdersList[_mid][_assignAccount].shares;
+        require(totalShares[_mid] > _assignAccountShares, "No need for distribution");
+
         // Calculate the dividend payment for each share
-        uint256 dividendPaymentEachShare = (_dividendAmount) / totalShares[_mid];
+        uint256 dividendPaymentEachShare = (_dividendAmount) / (totalShares[_mid] - _assignAccountShares);
 
         for (uint256 i = 0; i < shareholderAddressesList[_mid].length; i++) {
+            
             address shareholderAddr = shareholderAddressesList[_mid][i];
+            if(shareholderAddr == _assignAccount){
+                // Skip the assign account
+                continue;
+            }
             Shareholder storage shareholder = shareholdersList[_mid][shareholderAddr];
             uint256 dividendPayment = shareholder.shares * dividendPaymentEachShare;
             shareholder.dividendBalanceList[_token] += dividendPayment;

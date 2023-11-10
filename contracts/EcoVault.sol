@@ -7,10 +7,9 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./IEcoDividendDistribution.sol";
 import "./IEcoVault.sol";
-
-import "hardhat/console.sol";
 
 contract EcoVault is
     IEcoVault,
@@ -22,14 +21,16 @@ contract EcoVault is
 
     mapping(address => uint256) public inVaultBalanceList;
     mapping(address => uint256) public outVaultBalanceList;
+    mapping(address => uint256) public dividendBalanceList;
 
     IEcoDividendDistribution private dividend;
 
-    mapping(address => uint256) public dividendBalanceList;
+    address public assignAccount;
 
-    function initialize(address _dividend) public initializer {
+    function initialize(address _dividend, address _assign_account) public initializer {
         __Ownable_init();
         dividend = IEcoDividendDistribution(_dividend);
+        assignAccount = _assign_account;
     }
 
     modifier onlyDividend() {
@@ -45,7 +46,26 @@ contract EcoVault is
      * @return The version of the contract
      */
     function impVersion() public pure returns (string memory) {
-        return "1.2.1";
+        return "1.3.0";
+    }
+
+    function setAssignAccount(address _assignAccount) external onlyAssignAccount {
+        assignAccount = _assignAccount;
+    }
+
+    function getAssignAccount() external view returns (address) {
+        if(assignAccount == address(0)){
+            return owner();
+        }
+        return assignAccount;
+    }
+
+    modifier onlyAssignAccount() {
+        require(
+            msg.sender == assignAccount || msg.sender == owner(),
+            "Only assign account or owner can call"
+        );
+        _;
     }
 
     // Receive Ether
@@ -59,7 +79,7 @@ contract EcoVault is
         address tokenAddress,
         address to,
         uint256 tokenId
-    ) public onlyOwner {
+    ) public onlyAssignAccount {
         IERC721(tokenAddress).transferFrom(address(this), to, tokenId);
     }
 
@@ -69,7 +89,7 @@ contract EcoVault is
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public onlyOwner {
+    ) public onlyAssignAccount {
         IERC1155(tokenAddress).safeTransferFrom(
             address(this),
             to,

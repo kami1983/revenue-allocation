@@ -28,7 +28,7 @@ const {
   
       // Deploy a vault contract for sid = 0.
       const EcoVault = await ethers.getContractFactory("EcoVault");
-      const vault = await upgrades.deployProxy(EcoVault, [equity.address], { initializer: 'initialize' });
+      const vault = await upgrades.deployProxy(EcoVault, [equity.address, owner.address], { initializer: 'initialize' });
       await vault.deployed();
       await equity.setVault(vault.address);
   
@@ -36,6 +36,31 @@ const {
     }
   
     describe("Test Equity", function () {
+
+      it("Check vault AssignAccount.", async function () {
+
+        const { vault, equity, owner, test_a, test_b, test_c } = await loadFixture(deployFixture);
+        
+        // Check vault owner
+        expect(await vault.owner()).to.equal(owner.address);
+
+        // Check vault default assign account.
+        expect(await vault.getAssignAccount()).to.equal(owner.address);
+
+        expect(vault.connect(test_a).setAssignAccount(test_b.address)).to.be.revertedWith("Only assign account can call");
+
+        // Set a new assign account.
+        await vault.connect(owner).setAssignAccount(test_a.address);
+
+        // Check vault new assign account.
+        expect(await vault.getAssignAccount()).to.equal(test_a.address);
+
+        // await expect(vault.connect(owner).setAssignAccount(test_b.address)).to.be.revertedWith("Only assign account can call");
+        // await vault.connect(owner).setAssignAccount(test_b.address)
+        await vault.connect(test_a).setAssignAccount(test_b.address);
+        expect(await vault.getAssignAccount()).to.equal(test_b.address);
+
+      });
       
       it("Send native coins to vault contract to test whether the IEcoDividendDistribution interface is correctly.", async function () {
 
@@ -319,6 +344,7 @@ const {
         expect(await vault.getUnallocatedFunds(ttk.address)).to.equal(0);
   
       });
+
 
   
     });

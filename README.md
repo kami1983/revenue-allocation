@@ -114,3 +114,23 @@ vault upgrade success! 1.2.1
 
 ## Verify vault implementation contract 0x0FB8ADD7c4E86650a00edBCAf233fB24CBB795bC
 * npx hardhat verify --network polygon 0x0FB8ADD7c4E86650a00edBCAf233fB24CBB795bC
+
+## Depoly vault for 1
+* truffle dashboard [--port <number>] [--host <string>] [--verbose]
+```
+bind_sid -  1 implement version -  1.0.1
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+ECO Vault -  0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6
+Register and bind sid to vault contract
+Finish deploy artist eco none vault contract
+For sid = 1, check_vault_address = 0x0000000000000000000000000000000000000000
+
+```
+
+## Upgrade dividend 1.0.1 to 1.0.2
+* This's version fix a bug that the sid != 0 can't get the dividend.
+* `npx hardhat run scripts/0_upgrade_dividend_1.0.2.js --network truffle-dashboard` Need start `truffle dashboard`
+
+## From Vault 1.3.0 the vault initialize need provide the `_assign_account`
+
+## Upgrade vault to 1.3.0
