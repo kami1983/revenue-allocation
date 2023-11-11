@@ -304,6 +304,22 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
         return totalShares[sidMap[_sid]];
     }
 
+    function getAssignAccountBySid(uint256 _sid) external view returns (address) {
+        // Get vault address
+        address _vault_address = balanceAddressList[_sid];
+        address _assignAccount = IEcoVault(_vault_address).getAssignAccount();
+        return _assignAccount;
+    }
+
+    function getAssignAccountShares(uint256 _sid) external view returns (uint256) {
+        // Get vault address
+        address _vault_address = balanceAddressList[_sid];
+        address _assignAccount = IEcoVault(_vault_address).getAssignAccount();
+        uint256 _mid = sidMap[_sid];
+        uint256 _assignAccountShares = shareholdersList[_mid][_assignAccount].shares;
+        return _assignAccountShares;
+    }
+
     /**
      * @dev Get the last updated equity version
      * @param _sid The sid of the shareholder

@@ -255,6 +255,40 @@ describe("TestEcoDividendDistribution", function () {
       expect(await ethers.provider.getBalance(test_d.address)).to.equal(BigInt(base_amount) + BigInt(pay_amount3) * 6n / 10n);
 
     });
+
+    it("Test assign account shares", async function () {
+      const { equity, struct, owner, test_a, test_b, test_c, test_d, test_e, test_f, vault0, vault2, vault4, ttk0, ttk1,} = await loadFixture(deployFixture);
+
+      const pay_amount0 = ethers.utils.parseEther("100.0");
+      await ttk0.transfer(vault2.address, pay_amount0);
+
+      expect(await vault2.getAllInVaultBalance(ttk0.address)).to.equal(pay_amount0);
+      expect(await ttk0.balanceOf(vault2.address)).to.equal(pay_amount0);
+
+      await vault2.recordForDividends(ttk0.address);
+
+      expect(await equity.getShareholdersList(2, ttk0.address, test_b.address)).to.deep.equal([2n, true, 0n, BigInt(pay_amount0) * 2n / 10n]);
+      expect(await equity.getShareholdersList(2, ttk0.address, test_c.address)).to.deep.equal([2n, true, 0n, BigInt(pay_amount0) * 2n / 10n]);
+      expect(await equity.getShareholdersList(2, ttk0.address, test_d.address)).to.deep.equal([6n, true, 0n, BigInt(pay_amount0) * 6n / 10n]);
+
+      // Assign account shares.
+      await vault2.setAssignAccount(test_d.address);
+
+      await ttk1.transfer(vault2.address, pay_amount0);
+      expect(await ttk1.balanceOf(vault2.address)).to.equal(pay_amount0);
+
+      await vault2.recordForDividends(ttk1.address);
+
+      expect(await equity.getShareholdersList(2, ttk1.address, test_b.address)).to.deep.equal([2n, true, 0n, BigInt(pay_amount0) * 2n / 4n]);
+      expect(await equity.getShareholdersList(2, ttk1.address, test_c.address)).to.deep.equal([2n, true, 0n, BigInt(pay_amount0) * 2n / 4n]);
+      expect(await equity.getShareholdersList(2, ttk1.address, test_d.address)).to.deep.equal([6n, true, 0n, 0]);
+
+      // Get total shares.
+      expect(await equity.getTotalShares(2)).to.equal(10);
+      expect(await equity.getAssignAccountShares(2)).to.equal(6);
+      expect(await equity.getAssignAccountBySid(2)).to.equal(test_d.address);
+
+    });
     
   });
 
