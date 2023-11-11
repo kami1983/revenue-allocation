@@ -31,5 +31,6 @@ interface IEcoVault {
 
     function getAssignAccount() external view returns (address);
 
+    function setLockStatus(bool _lockStatus) external;
 }
 

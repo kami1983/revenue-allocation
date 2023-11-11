@@ -134,3 +134,27 @@ For sid = 1, check_vault_address = 0x0000000000000000000000000000000000000000
 ## From Vault 1.3.0 the vault initialize need provide the `_assign_account`
 
 ## Upgrade vault to 1.3.0
+* npx hardhat run scripts/2_upgrade_vault_1.3.0_with_vault0.js --network truffle-dashboard
+```
+bind_sid -  0 implement version -  1.0.2
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+will upgrade vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+vault native balance -  10334960000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.2.1
+new_vault_version -  1.3.0
+Finish deployed artist eco vault contract
+```
+
+* npx hardhat run scripts/2_upgrade_vault_1.3.0_with_vault1.js --network truffle-dashboard
+```
+bind_sid -  1 implement version -  1.0.2
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_address -  0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6
+will upgrade vault_address -  0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6
+vault native balance -  100000000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.2.1
+new_vault_version -  1.3.0
+Finish deployed artist eco vault contract
+```
+

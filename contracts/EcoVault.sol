@@ -21,11 +21,14 @@ contract EcoVault is
 
     mapping(address => uint256) public inVaultBalanceList;
     mapping(address => uint256) public outVaultBalanceList;
-    mapping(address => uint256) public dividendBalanceList;
 
     IEcoDividendDistribution private dividend;
 
+    mapping(address => uint256) public dividendBalanceList;
+
     address public assignAccount;
+
+    bool public lockStatus;
 
     function initialize(address _dividend, address _assign_account) public initializer {
         __Ownable_init();
@@ -53,6 +56,10 @@ contract EcoVault is
         assignAccount = _assignAccount;
     }
 
+    function setLockStatus(bool _lockStatus) external onlyOwner {
+        lockStatus = _lockStatus;
+    }
+
     function getAssignAccount() external view returns (address) {
         if(assignAccount == address(0)){
             return owner();
@@ -68,6 +75,11 @@ contract EcoVault is
         _;
     }
 
+    modifier notLocked() {
+        require(!lockStatus, "The contract is locked");
+        _;
+    }
+
     // Receive Ether
     receive() external payable {
         // Check if the received amount is greater than the total number of shares; otherwise, the funds accumulate for the next distribution.
@@ -79,7 +91,7 @@ contract EcoVault is
         address tokenAddress,
         address to,
         uint256 tokenId
-    ) public onlyAssignAccount {
+    ) public onlyAssignAccount notLocked{
         IERC721(tokenAddress).transferFrom(address(this), to, tokenId);
     }
 
@@ -89,7 +101,7 @@ contract EcoVault is
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public onlyAssignAccount {
+    ) public onlyAssignAccount notLocked{
         IERC1155(tokenAddress).safeTransferFrom(
             address(this),
             to,
@@ -131,7 +143,7 @@ contract EcoVault is
 
     function recordForDividends(
         address _token
-    ) external override returns (uint256) {
+    ) external override notLocked returns (uint256) {
         uint256 _amount = getUnallocatedFunds(_token);
 
         require(_amount > 0, "No need to deposit for dividends.");
@@ -146,7 +158,7 @@ contract EcoVault is
         address _token,
         address _to,
         uint256 _value
-    ) public onlyDividend {
+    ) public onlyDividend notLocked{
         if (_token == address(0)) {
             require(
                 address(this).balance >= _value,

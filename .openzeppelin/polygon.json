@@ -1215,7 +1215,7 @@
             "slot": "101",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "EcoVault",
-            "src": "contracts/EcoVault.sol:23"
+            "src": "contracts/EcoVault.sol:22"
           },
           {
             "label": "outVaultBalanceList",
@@ -1223,15 +1223,15 @@
             "slot": "102",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "EcoVault",
-            "src": "contracts/EcoVault.sol:24"
+            "src": "contracts/EcoVault.sol:23"
           },
           {
             "label": "dividend",
             "offset": 0,
             "slot": "103",
-            "type": "t_contract(IEcoDividendDistribution)3415",
+            "type": "t_contract(IEcoDividendDistribution)2335",
             "contract": "EcoVault",
-            "src": "contracts/EcoVault.sol:26"
+            "src": "contracts/EcoVault.sol:25"
           },
           {
             "label": "dividendBalanceList",
@@ -1239,7 +1239,7 @@
             "slot": "104",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "EcoVault",
-            "src": "contracts/EcoVault.sol:28"
+            "src": "contracts/EcoVault.sol:27"
           }
         ],
         "types": {
@@ -1259,7 +1259,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(IEcoDividendDistribution)3415": {
+          "t_contract(IEcoDividendDistribution)2335": {
             "label": "contract IEcoDividendDistribution",
             "numberOfBytes": "20"
           },
@@ -1489,6 +1489,139 @@
               }
             ],
             "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "c03450b9c1d178cb9bae5ed9f4b2e61faf69ecb99b9ce8c65a9ef9febe989f63": {
+      "address": "0x0e66d3531dfd3fc43146fb4913B63cACB7AEf52B",
+      "txHash": "0x10d5fb212d4bece8b21b3d700c2b6300927f61a3fb7e1ebd91feea46c3edb282",
+      "layout": {
+        "solcVersion": "0.8.11",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "inVaultBalanceList",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:22"
+          },
+          {
+            "label": "outVaultBalanceList",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:23"
+          },
+          {
+            "label": "dividend",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(IEcoDividendDistribution)2424",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:25"
+          },
+          {
+            "label": "dividendBalanceList",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:27"
+          },
+          {
+            "label": "assignAccount",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:29"
+          },
+          {
+            "label": "lockStatus",
+            "offset": 20,
+            "slot": "105",
+            "type": "t_bool",
+            "contract": "EcoVault",
+            "src": "contracts/EcoVault.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IEcoDividendDistribution)2424": {
+            "label": "contract IEcoDividendDistribution",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
           },
           "t_uint256": {
             "label": "uint256",
