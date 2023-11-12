@@ -54,6 +54,7 @@ contract EcoVault is
 
     function setAssignAccount(address _assignAccount) external onlyAssignAccount {
         assignAccount = _assignAccount;
+        
     }
 
     function setLockStatus(bool _lockStatus) external onlyOwner {
