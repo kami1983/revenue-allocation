@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 // import Initializable
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+// import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import "./InterfaceStakeStructure.sol";
 import "./IEcoDividendDistribution.sol";
 import "./IEcoVault.sol";
@@ -13,13 +15,15 @@ import "./IEcoVault.sol";
 
 contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, OwnableUpgradeable {
     address public register; // 
+    
+    using SafeMathUpgradeable for uint256;
 
     uint256[] private totalShares; // Total number of shares
     // uint256[] private totalDividend; // Total dividend amount
     uint256[] private lastSharesVersion; // The last updated equity version
 
     InterfaceStakeStructure public equityStructure;
-
+    
     struct Shareholder {
         uint256 shares; // Number of shares
         bool exists; // Whether the shareholder exists
@@ -40,6 +44,13 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
     mapping(uint256 => address) public balanceAddressList;
     mapping(address => uint256) public balanceSidList;
 
+
+    // ReentrancyGuard
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+    uint256 private _status;
+
+
     modifier onlyRegister() {
         require(msg.sender == register, "Only the owner can call this function");
         _;
@@ -47,9 +58,42 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
 
     function initialize ( address _equityStructure) public initializer  {
         __Ownable_init();
+        // __ReentrancyGuard_init();
         // owner = msg.sender;
         register = msg.sender;
         updateEquityStructureInterface(_equityStructure);
+    }
+
+    function initialize_111() public initializer  {
+        _status = _NOT_ENTERED;
+    }
+
+    modifier nonReentrant() {
+        _nonReentrantBefore();
+        _;
+        _nonReentrantAfter();
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, _status will be _NOT_ENTERED
+        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+        // Any calls to nonReentrant after this point will fail
+        _status = _ENTERED;
+    }
+
+    function _nonReentrantAfter() private {
+        // By storing the original value once again, a refund is triggered (see
+        // https://eips.ethereum.org/EIPS/eip-2200)
+        _status = _NOT_ENTERED;
+    }
+
+    /**
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * `nonReentrant` function in the call stack.
+     */
+    function _reentrancyGuardEntered() internal view returns (bool) {
+        return _status == _ENTERED;
     }
 
     /**
@@ -57,7 +101,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
      * @return The version of the contract
      */
     function impVersion() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.1.1";
     }
 
     // update register
@@ -113,7 +157,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
         // totalDividend.push(0); 
         lastSharesVersion.push(0); 
 
-        uint256 mapNextId = shareholdersList.length - 1;
+        uint256 mapNextId = shareholdersList.length.sub(1);
 
         // Get sidMap length 
         sidMap[_sid] = mapNextId;
@@ -201,7 +245,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
                     found = true;
                     // Update the share count
                     shareholdersList[_mid][shareholder].shares = _newShares[j];
-                    totalShares[_mid] += _newShares[j];
+                    totalShares[_mid] =  totalShares[_mid].add(_newShares[j]);
                     break;
                 }
             }
@@ -229,7 +273,8 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
                 newElement.shares = newShares;
 
                 // Accumulate totalShares
-                totalShares[_mid] += newShares;
+                // totalShares[_mid] += newShares;
+                totalShares[_mid] = totalShares[_mid].add(newShares);
                 _addShareholderToList(_mid, newShareholder);
             }
         }
@@ -260,8 +305,8 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
                 continue;
             }
             Shareholder storage shareholder = shareholdersList[_mid][shareholderAddr];
-            uint256 dividendPayment = shareholder.shares * dividendPaymentEachShare;
-            shareholder.dividendBalanceList[_token] += dividendPayment;
+            uint256 dividendPayment = shareholder.shares.mul(dividendPaymentEachShare);
+            shareholder.dividendBalanceList[_token] = shareholder.dividendBalanceList[_token].add(dividendPayment) ;
         }
     }
 
@@ -271,7 +316,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
      * @param _token The address of the token contract
      * @param _holder The address of the holder
      */
-    function withdrawDividends(uint256 _sid,  address _token, address _holder) external {
+    function withdrawDividends(uint256 _sid,  address _token, address _holder) nonReentrant external {
 
         (uint256 _sMapKey,) = getSidRelatedInfos(_sid);
 
@@ -281,7 +326,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
 
         uint256 amountToWithdraw = shareholder.dividendBalanceList[_token];
         shareholder.dividendBalanceList[_token] = 0;
-        shareholder.totalWithdrawnList[_token] += amountToWithdraw;
+        shareholder.totalWithdrawnList[_token] = shareholder.totalWithdrawnList[_token].add(amountToWithdraw) ;
 
         address _vault_address = balanceAddressList[_sid];
         IEcoVault vault = IEcoVault(_vault_address);
@@ -357,7 +402,7 @@ contract EcoDividendDistribution is IEcoDividendDistribution, Initializable, Own
         uint256 totalWithdrawn = 0;
         for (uint256 i = 0; i < shareholderAddressesList[_mid].length; i++) {
             address shareholderAddr = shareholderAddressesList[_mid][i];
-            totalWithdrawn += shareholdersList[_mid][shareholderAddr].totalWithdrawnList[_token];
+            totalWithdrawn = totalWithdrawn.add(shareholdersList[_mid][shareholderAddr].totalWithdrawnList[_token]);
         }
         return totalWithdrawn;
     }

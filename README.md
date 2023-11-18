@@ -182,3 +182,40 @@ distribution_contract_owner -  0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d
 new_dividend_distribution -  1.1.0
 vault upgrade success of DividendDistribution! 1.1.0, implementation_address -  0x912DF04a9A7424555C26897693646599887Ea433
 ```
+
+## Upgrade dividend to 1.1.1 version `npx hardhat run scripts/0_upgrade_dividend_1.1.1.js --network truffle-dashboard`
+```
+Support sigin account
+distribution_address proxy -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE polygon
+old distribution_impVersion -  1.1.0
+distribution_contract_owner -  0xF322adBc64a39d4EB5CF2B3E8296CaB0874f257d
+new_dividend_distribution -  1.1.1
+vault upgrade success of DividendDistribution! 1.1.1, implementation_address -  0xf9FF01f8C360dD24D8Dc509c43b593c92722A963
+```
+
+## Upgrade vault of sid=0
+* `npx hardhat run scripts/2_upgrade_vault_1.3.1_with_vault0.js --network truffle-dashboard`
+```
+npx hardhat run scripts/2_upgrade_vault_1.3.1_with_vault0.js --network truffle-dashboard
+bind_sid -  0 implement version -  1.1.1
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+will upgrade vault_address -  0x4a12412E23e876434Fab3ec177C6856EaE83Db79
+vault native balance -  13348580000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.3.0
+new_vault_version -  1.3.1
+Finish deployed artist eco vault contract
+```
+
+## Upgrade vault of sid=1
+* `npx hardhat run scripts/2_upgrade_vault_1.3.1_with_vault1.js --network truffle-dashboard`
+```
+bind_sid -  1 implement version -  1.1.1
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_address -  0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6
+will upgrade vault_address -  0x9e7Fc30208C37566F0ffd47547b14f6a9135DBC6
+vault native balance -  100000000000000000 distribution:  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+old_vault_version -  1.3.0
+new_vault_version -  1.3.1
+Finish deployed artist eco vault contract
+```
