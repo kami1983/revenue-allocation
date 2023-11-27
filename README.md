@@ -219,3 +219,14 @@ old_vault_version -  1.3.0
 new_vault_version -  1.3.1
 Finish deployed artist eco vault contract
 ```
+
+## Add new sid=2
+* npx hardhat run scripts/1_deploy_Vault_sid_2.js --network truffle-dashboard
+```
+bind_sid -  2 implement version -  1.1.1
+distribution_address -  0xF1391060E4a3092796B60c1cFaeea94f07fDe9FE
+ECO Vault -  0x81Bab6f1636Ce3e4FF1005cc1e6372e4e26926d8
+Register and bind sid to vault contract
+Finish deploy artist eco none vault contract
+For sid = 2, check_vault_address = 0x0000000000000000000000000000000000000000
+```
