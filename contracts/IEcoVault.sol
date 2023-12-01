@@ -16,9 +16,6 @@ interface IEcoVault {
      * @return The address of the dividend contract
      */
     function getDividendAddress() external view returns (address);
-
-    // function depositErc20(address _token, uint256 _amount) external ;
-
     /**
      * @dev Call the ledger to determine the allocated amount.
      * @param _token The address of the token to be distributed, if native token, use address(0)
