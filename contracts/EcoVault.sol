@@ -19,7 +19,6 @@ contract EcoVault is
     Initializable,
     OwnableUpgradeable
 {
-
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -39,13 +38,17 @@ contract EcoVault is
     uint256 private constant _ENTERED = 2;
     uint256 private _status;
 
-    function initialize(address _dividend, address _assign_account) public initializer {
+    function initialize(
+        address _dividend,
+        address _assign_account
+    ) public initializer {
         __Ownable_init();
         dividend = IEcoDividendDistribution(_dividend);
         assignAccount = _assign_account;
+        _status = _NOT_ENTERED;
     }
 
-    function initialize_131() public initializer  {
+    function initialize_131() public initializer {
         _status = _NOT_ENTERED;
     }
 
@@ -77,7 +80,6 @@ contract EcoVault is
         return _status == _ENTERED;
     }
 
-
     modifier onlyDividend() {
         require(
             msg.sender == address(dividend),
@@ -94,9 +96,10 @@ contract EcoVault is
         return "1.3.1";
     }
 
-    function setAssignAccount(address _assignAccount) external onlyAssignAccount {
+    function setAssignAccount(
+        address _assignAccount
+    ) external onlyAssignAccount {
         assignAccount = _assignAccount;
-        
     }
 
     function setLockStatus(bool _lockStatus) external onlyOwner {
@@ -104,7 +107,7 @@ contract EcoVault is
     }
 
     function getAssignAccount() external view returns (address) {
-        if(assignAccount == address(0)){
+        if (assignAccount == address(0)) {
             return owner();
         }
         return assignAccount;
@@ -134,7 +137,7 @@ contract EcoVault is
         address tokenAddress,
         address to,
         uint256 tokenId
-    ) public onlyAssignAccount notLocked{
+    ) public onlyAssignAccount notLocked {
         IERC721(tokenAddress).transferFrom(address(this), to, tokenId);
     }
 
@@ -144,7 +147,7 @@ contract EcoVault is
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public onlyAssignAccount notLocked{
+    ) public onlyAssignAccount notLocked {
         IERC1155(tokenAddress).safeTransferFrom(
             address(this),
             to,
@@ -158,28 +161,35 @@ contract EcoVault is
         return address(dividend);
     }
 
-    function getAllInVaultBalance(address _token)
-        public
-        view
-        returns (uint256)
-    {
+    function getAllInVaultBalance(
+        address _token
+    ) public view returns (uint256) {
         if (_token == address(0)) {
             return address(this).balance.add(outVaultBalanceList[address(0)]);
         } else {
             IERC20 token = IERC20(_token);
-            return token.balanceOf(address(this)).add(outVaultBalanceList[_token]);
+            return
+                token.balanceOf(address(this)).add(outVaultBalanceList[_token]);
         }
     }
 
     function getUnallocatedFunds(address _token) public view returns (uint256) {
-        if(_token == address(0)){
-            uint256 _totalAmount = address(this).balance.add(outVaultBalanceList[address(0)]);
-            uint256 _unrecordFunds = _totalAmount.sub(dividendBalanceList[address(0)]);
+        if (_token == address(0)) {
+            uint256 _totalAmount = address(this).balance.add(
+                outVaultBalanceList[address(0)]
+            );
+            uint256 _unrecordFunds = _totalAmount.sub(
+                dividendBalanceList[address(0)]
+            );
             return _unrecordFunds;
-        }else{
+        } else {
             IERC20 token = IERC20(_token);
-            uint256 _totalAmount = token.balanceOf(address(this)).add(outVaultBalanceList[_token]);
-            uint256 _unrecordFunds = _totalAmount.sub(dividendBalanceList[_token]);
+            uint256 _totalAmount = token.balanceOf(address(this)).add(
+                outVaultBalanceList[_token]
+            );
+            uint256 _unrecordFunds = _totalAmount.sub(
+                dividendBalanceList[_token]
+            );
             return _unrecordFunds;
         }
     }
@@ -197,7 +207,7 @@ contract EcoVault is
         return _amount;
     }
 
-    function withdraw (
+    function withdraw(
         address _token,
         address _to,
         uint256 _value
@@ -208,12 +218,13 @@ contract EcoVault is
                 "Insufficient balance of native token"
             );
 
-            outVaultBalanceList[address(0)] = outVaultBalanceList[address(0)].add(_value);
+            outVaultBalanceList[address(0)] = outVaultBalanceList[address(0)]
+                .add(_value);
 
             // Perform the transfer
             (bool success, ) = payable(_to).call{value: _value}("");
             require(success, "Native token transfer failed");
-            
+
             emit EventWithdraw(_to, address(0), _value);
         } else {
             IERC20 token = IERC20(_token);
@@ -222,7 +233,9 @@ contract EcoVault is
                 token.balanceOf(address(this)) >= _value,
                 "Insufficient balance of erc20 token"
             );
-            outVaultBalanceList[_token] = outVaultBalanceList[_token].add(_value);
+            outVaultBalanceList[_token] = outVaultBalanceList[_token].add(
+                _value
+            );
             IERC20Upgradeable(_token).transfer(_to, _value);
 
             emit EventWithdraw(_to, _token, _value);
